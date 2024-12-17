@@ -1,9 +1,11 @@
-"""Tool and Agent Registry for the AI Tools Ecosystem."""
+"""Registry for managing tools and agents."""
 
-from typing import Dict, Type, Optional
-from .utils import ToolException
+from typing import Dict, Type, Any, Optional
+import logging
+from ..agents.base import BaseAgent
 from ..tools.templates.tool_template import BaseTool
-from ..agents.templates.agent_template import BaseAgent
+
+logger = logging.getLogger(__name__)
 
 class Registry:
     """Registry for managing tool and agent registration."""

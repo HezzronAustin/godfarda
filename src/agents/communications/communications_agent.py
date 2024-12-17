@@ -10,6 +10,8 @@ from abc import ABC, abstractmethod
 import logging
 from src.tools.communication.telegram.handler import TelegramHandler
 from src.tools.ai import AIModel, AIModelFactory, Message, MessageRole, ModelResponse
+from src.agents.base import BaseAgent, AgentConfig
+from .memory.memory_store import CommunicationsMemory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,7 +32,7 @@ class CommunicationTool(ABC):
     
     @abstractmethod
     def setup_channel(self, params: Dict[str, Any]) -> bool:
-        """Set up the communication channel with given parameters."""
+        """Set up the communication channel."""
         pass
 
 class TelegramToolAdapter(CommunicationTool):
@@ -41,54 +43,53 @@ class TelegramToolAdapter(CommunicationTool):
     
     def send_message(self, recipient: str, message: str) -> bool:
         try:
-            # Adapt the existing TelegramHandler's methods
-            return self.handler.send_message(chat_id=recipient, text=message)
+            self.handler.send_message(recipient, message)
+            return True
         except Exception as e:
             logger.error(f"Error sending Telegram message: {e}")
             return False
     
     def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        try:
-            return self.handler.process_update(context)
-        except Exception as e:
-            logger.error(f"Error processing Telegram update: {e}")
-            return {}
+        return self.handler.handle_message(context)
     
     def setup_channel(self, params: Dict[str, Any]) -> bool:
         try:
-            return self.handler.setup_webhook(params.get('webhook_url', ''))
+            self.handler.initialize()
+            return True
         except Exception as e:
-            logger.error(f"Error setting up Telegram webhook: {e}")
+            logger.error(f"Error setting up Telegram channel: {e}")
             return False
 
-class CommunicationsAgent:
-    """
-    Main Communications Agent class that orchestrates messaging across different platforms.
-    """
+class CommunicationsAgent(BaseAgent):
+    """Main Communications Agent class that orchestrates messaging across different platforms."""
     
-    def __init__(self, ai_model_name: str = "ollama", ai_model_params: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: AgentConfig):
+        super().__init__(config)
         self._tools: Dict[str, CommunicationTool] = {}
+        self.memory = CommunicationsMemory()
+        
         # Register the Telegram tool by default
         self.register_tool("telegram", TelegramToolAdapter())
         
         # Initialize AI model
         self.ai_model: Optional[AIModel] = None
-        self.ai_model_name = ai_model_name
-        self.ai_model_params = ai_model_params or {}
+        self.ai_model_name = config.get("ai_model_name", "ollama")
+        self.ai_model_params = config.get("ai_model_params", {})
         
         # Conversation history for AI context
         self.conversation_history: Dict[str, List[Message]] = {}
     
-    async def initialize(self) -> bool:
+    def initialize(self):
         """Initialize the agent and its AI model."""
         try:
-            self.ai_model = AIModelFactory.create(self.ai_model_name, **self.ai_model_params)
-            return await self.ai_model.initialize()
+            self.ai_model = AIModelFactory.create_model(self.ai_model_name, **self.ai_model_params)
+            logger.info(f"Initialized AI model: {self.ai_model_name}")
+            return True
         except Exception as e:
-            logger.error(f"Failed to initialize AI model: {e}")
+            logger.error(f"Error initializing AI model: {e}")
             return False
     
-    def register_tool(self, platform: str, tool: CommunicationTool) -> None:
+    def register_tool(self, platform: str, tool: CommunicationTool):
         """
         Register a new communication tool for a specific platform.
         
@@ -96,10 +97,10 @@ class CommunicationsAgent:
             platform: The platform identifier (e.g., "telegram", "slack")
             tool: The communication tool instance
         """
-        self._tools[platform.lower()] = tool
-        logger.info(f"Registered tool for platform: {platform}")
+        self._tools[platform] = tool
+        logger.info(f"Registered communication tool for platform: {platform}")
     
-    async def process_message(self, platform: str, user_id: str, message: str) -> Optional[str]:
+    def process_message(self, platform: str, user_id: str, message: str) -> Optional[str]:
         """
         Process a message using AI and return a response.
         
@@ -114,42 +115,34 @@ class CommunicationsAgent:
         if not self.ai_model:
             logger.error("AI model not initialized")
             return None
-            
-        conversation_key = f"{platform}:{user_id}"
-        
-        # Initialize conversation history if needed
-        if conversation_key not in self.conversation_history:
-            self.conversation_history[conversation_key] = [
-                Message(
-                    role=MessageRole.SYSTEM,
-                    content="You are a helpful AI assistant. Respond naturally and concisely."
-                )
-            ]
-            
-        # Add user message to history
-        self.conversation_history[conversation_key].append(
-            Message(role=MessageRole.USER, content=message)
-        )
         
         try:
+            # Get conversation history
+            history = self.conversation_history.get(user_id, [])
+            
+            # Add user message to history
+            history.append(Message(role=MessageRole.USER, content=message))
+            
             # Get AI response
-            response = await self.ai_model.chat(
-                messages=self.conversation_history[conversation_key],
-                temperature=0.7
-            )
-            
-            # Add AI response to history
-            self.conversation_history[conversation_key].append(
-                Message(role=MessageRole.ASSISTANT, content=response.content)
-            )
-            
-            return response.content
-            
+            response: ModelResponse = self.ai_model.chat(history)
+            if response and response.message:
+                # Add AI response to history
+                history.append(response.message)
+                
+                # Update conversation history
+                self.conversation_history[user_id] = history
+                
+                # Store the interaction in memory
+                self.memory.store_conversation(platform, user_id, message, response.message.content)
+                
+                return response.message.content
+                
         except Exception as e:
-            logger.error(f"Error getting AI response: {e}")
-            return None
+            logger.error(f"Error processing message: {e}")
+        
+        return None
     
-    async def send_message(self, platform: str, recipient: str, message: str) -> bool:
+    def send_message(self, platform: str, recipient: str, message: str) -> bool:
         """
         Send a message using the specified platform.
         
@@ -161,14 +154,13 @@ class CommunicationsAgent:
         Returns:
             bool: True if message was sent successfully, False otherwise
         """
-        platform = platform.lower()
         if platform not in self._tools:
             logger.error(f"No tool registered for platform: {platform}")
             return False
-            
+        
         return self._tools[platform].send_message(recipient, message)
     
-    async def handle_incoming_message(self, platform: str, context: Dict[str, Any]) -> bool:
+    def handle_incoming_message(self, platform: str, context: Dict[str, Any]) -> bool:
         """
         Handle an incoming message, process it with AI, and send a response.
         
@@ -179,31 +171,33 @@ class CommunicationsAgent:
         Returns:
             bool: True if message was handled successfully, False otherwise
         """
-        platform = platform.lower()
         if platform not in self._tools:
             logger.error(f"No tool registered for platform: {platform}")
             return False
-            
-        # Process the incoming message
-        message_data = self._tools[platform].receive_message(context)
-        if not message_data:
-            return False
-            
-        # Extract user ID and message content (platform-specific)
-        user_id = message_data.get("user_id")
-        message = message_data.get("message")
         
-        if not user_id or not message:
-            logger.error("Missing user_id or message in message_data")
-            return False
+        try:
+            # Process the incoming message
+            message_data = self._tools[platform].receive_message(context)
+            if not message_data:
+                return False
             
-        # Get AI response
-        response = await self.process_message(platform, user_id, message)
-        if not response:
-            return False
+            user_id = message_data.get("user_id")
+            message = message_data.get("message")
             
-        # Send response back
-        return await self.send_message(platform, user_id, response)
+            if not user_id or not message:
+                logger.error("Missing user_id or message in processed data")
+                return False
+            
+            # Get AI response
+            response = self.process_message(platform, user_id, message)
+            if response:
+                # Send the response back
+                return self.send_message(platform, user_id, response)
+            
+        except Exception as e:
+            logger.error(f"Error handling incoming message: {e}")
+        
+        return False
     
     def setup_channel(self, platform: str, params: Dict[str, Any]) -> bool:
         """
@@ -216,36 +210,17 @@ class CommunicationsAgent:
         Returns:
             bool: True if setup was successful, False otherwise
         """
-        platform = platform.lower()
         if platform not in self._tools:
             logger.error(f"No tool registered for platform: {platform}")
             return False
-            
+        
         return self._tools[platform].setup_channel(params)
     
-    async def cleanup(self) -> None:
+    def cleanup(self):
         """Clean up resources used by the agent."""
-        if self.ai_model:
-            await self.ai_model.cleanup()
-            self.ai_model = None
-
-# Example usage
-if __name__ == "__main__":
-    # Create an instance of the Communications Agent
-    agent = CommunicationsAgent()
-    
-    # Initialize the agent
-    agent.initialize()
-    
-    # Example: Send a message via Telegram
-    success = agent.send_message(
-        platform="telegram",
-        recipient="chat_id_here",
-        message="Hello from Communications Agent!"
-    )
-    
-    # Example: Set up Telegram webhook
-    webhook_setup = agent.setup_channel(
-        platform="telegram",
-        params={"webhook_url": "https://your-domain.com/webhook"}
-    )
+        # Clean up AI model if needed
+        if self.ai_model and hasattr(self.ai_model, 'cleanup'):
+            self.ai_model.cleanup()
+        
+        # Clear conversation history
+        self.conversation_history.clear()

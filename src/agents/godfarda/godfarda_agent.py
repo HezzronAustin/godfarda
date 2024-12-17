@@ -10,8 +10,11 @@ This agent is responsible for:
 
 from typing import Dict, List, Any
 import logging
-from src.agents.templates.agent_template import BaseAgent, AgentConfig
-from src.agents.memory.memory_store import MemoryStore
+import os
+import importlib.util
+from pathlib import Path
+from src.agents.base import BaseAgent, AgentConfig
+from .memory.memory_store import GodFardaMemory
 import datetime
 
 logger = logging.getLogger(__name__)
@@ -30,32 +33,54 @@ class GodFarda(BaseAgent):
     def __init__(self, config: AgentConfig):
         super().__init__(config)
         self.agents: Dict[str, AgentInfo] = {}
-        self.memory = MemoryStore("godfarda")
+        self.memory = GodFardaMemory()
         self.register_default_agents()
         
     def register_default_agents(self):
-        """Register the default set of available agents"""
-        self.register_agent(
-            "code_expert",
-            AgentInfo(
-                "code_expert",
-                "Expert in software development and coding",
-                ["code review", "debugging", "architecture design"],
-                ["codebase_search", "edit_file", "view_file"]
-            )
-        )
+        """Register all available agents from the agents directory"""
+        agents_dir = Path(__file__).parent.parent  # Get the agents directory
         
-        self.register_agent(
-            "communicator",
-            AgentInfo(
-                "communicator",
-                "Handles various communication channels",
-                ["message routing", "notification management"],
-                ["telegram_send", "email_send"]
-            )
-        )
-        
-        # Add more default agents here
+        # Iterate through all Python files in the agents directory
+        for item in agents_dir.glob("**/*.py"):
+            # Skip __init__.py, test files, and files in the godfarda directory
+            if (item.name == "__init__.py" or 
+                "test" in item.name.lower() or 
+                "godfarda" in str(item) or
+                "_template" in str(item) or
+                item.parent.name == "__pycache__"):
+                continue
+                
+            try:
+                # Get the module name from the file path
+                module_name = str(item.relative_to(agents_dir.parent)).replace("/", ".").replace(".py", "")
+                
+                # Import the module
+                spec = importlib.util.spec_from_file_location(module_name, str(item))
+                if spec and spec.loader:
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    
+                    # Look for agent classes that inherit from BaseAgent
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if (isinstance(attr, type) and 
+                            issubclass(attr, BaseAgent) and 
+                            attr != BaseAgent):
+                            
+                            # Create an instance and get its capabilities
+                            agent_name = attr_name.lower()
+                            agent_info = AgentInfo(
+                                name=agent_name,
+                                description=attr.__doc__ or f"Agent {agent_name}",
+                                capabilities=getattr(attr, "capabilities", []),
+                                tools=getattr(attr, "tools", [])
+                            )
+                            
+                            self.register_agent(agent_name, agent_info)
+                            logger.info(f"Registered agent: {agent_name}")
+                            
+            except Exception as e:
+                logger.error(f"Error loading agent from {item}: {str(e)}")
         
     def register_agent(self, name: str, agent_info: AgentInfo):
         """Register a new agent with its capabilities"""
@@ -272,3 +297,12 @@ Current User:
             capabilities = ", ".join(info.capabilities)
             agent_info.append(f"@{name}: {info.description} (Capabilities: {capabilities})")
         return "\n".join(agent_info)
+
+    def cleanup(self):
+        """Clean up resources used by the agent."""
+        # Clean up memory
+        if self.memory:
+            self.memory.clear_memories()
+        
+        # Clear agent registry
+        self.agents.clear()

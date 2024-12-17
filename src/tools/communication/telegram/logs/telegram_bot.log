@@ -1,5 +1,6 @@
-2024-12-17 13:39:50,218 - __main__ - INFO - Logging initialized successfully. Log file: /Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/logs/telegram_bot.log
-2024-12-17 13:39:50,221 - __main__ - INFO - Registered tools: {'TextAnalyzer': 'A tool for basic text analysis including word count and sentiment.', 'TelegramMessageTool': '\n    Tool for handling Telegram message operations.\n    Provides functionality to send messages and receive updates through a Telegram bot.\n    ', 'OllamaChatTool': "Tool for interacting with Ollama's chat functionality"}
-2024-12-17 13:39:50,221 - asyncio - DEBUG - Using selector: KqueueSelector
-2024-12-17 13:39:50,229 - src.agents.godfarda.godfarda_agent - INFO - Registered agent: code_expert with capabilities: ['code review', 'debugging', 'architecture design']
-2024-12-17 13:39:50,229 - src.agents.godfarda.godfarda_agent - INFO - Registered agent: communicator with capabilities: ['message routing', 'notification management']
+2024-12-17 14:05:46,502 - __main__ - INFO - Logging initialized successfully. Log file: /Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/logs/telegram_bot.log
+2024-12-17 14:05:46,509 - __main__ - INFO - Registered tools: {'TextAnalyzer': 'A tool for basic text analysis including word count and sentiment.', 'TelegramMessageTool': '\n    Tool for handling Telegram message operations.\n    Provides functionality to send messages and receive updates through a Telegram bot.\n    ', 'OllamaChatTool': "Tool for interacting with Ollama's chat functionality"}
+2024-12-17 14:05:46,509 - asyncio - DEBUG - Using selector: KqueueSelector
+2024-12-17 14:05:46,512 - src.agents.godfarda.godfarda_agent - INFO - Registered agent: textagent with capabilities: []
+2024-12-17 14:05:46,512 - src.agents.godfarda.godfarda_agent - INFO - Registered agent: textagent
+2024-12-17 14:05:46,514 - src.agents.godfarda.godfarda_agent - ERROR - Error loading agent from /Users/farda/CascadeProjects/ai-tools-ecosystem/src/agents/communications/communications_agent.py: No module named 'agents'

@@ -1,1 +1,1 @@
-"""Agent templates package."""
+"""Templates package for agent implementations."""

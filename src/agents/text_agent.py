@@ -1,8 +1,8 @@
-"""Example agent implementation for text processing."""
+"""Text analysis agent implementation."""
 
-from typing import Dict, Any
-from .templates.agent_template import BaseAgent, AgentConfig
-from ..core.utils import ValidationError
+from typing import Dict, Any, Optional
+from src.agents.base import BaseAgent, AgentConfig
+from src.core.utils import ValidationError
 
 class TextAgent(BaseAgent):
     """A simple agent that uses the text analyzer tool."""

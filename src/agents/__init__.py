@@ -3,7 +3,7 @@ Agents package initialization.
 Exposes various agent implementations for the AI Tools Ecosystem.
 """
 
-from .communications_agent import CommunicationsAgent
+from .communications.communications_agent import CommunicationsAgent
 from .text_agent import TextAgent
 
 # Make agents available for import
@@ -15,4 +15,4 @@ def register_agents():
     registry.register_agent(TextAgent)
 
 # Import communications_agent lazily to avoid circular imports
-from .communications_agent import CommunicationsAgent
+from .communications.communications_agent import CommunicationsAgent
