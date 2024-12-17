@@ -95,12 +95,12 @@ class GodFarda(BaseAgent):
             logger.info(f"Initializing GodFarda with {len(self.agents)} registered agents")
             
             # Store initialization in memory
-            self.memory.add_memory(
-                "GodFarda initialization",
-                "system",
-                {"event": "initialization"},
-                importance=1.0
-            )
+            # self.memory.add_memory(
+            #     "GodFarda initialization",
+            #     "system",
+            #     {"event": "initialization"},
+            #     importance=1.0
+            # )
             
             # Initialize Ollama for AI responses
             from src.core.registry import registry
@@ -136,24 +136,25 @@ class GodFarda(BaseAgent):
             logger.info(f"Platform: {platform}")
             
             # Store message in memory
-            self.memory.add_memory(
-                f"User message: {message}",
-                "conversation",
-                {
-                    "user": user_info,
-                    "platform": platform,
-                    "type": "incoming"
-                }
-            )
+            # self.memory.add_memory(
+            #     f"User message: {message}",
+            #     "conversation",
+            #     {
+            #         "user": user_info,
+            #         "platform": platform,
+            #         "type": "incoming"
+            #     }
+            # )
             
             # Get relevant memories for context
-            relevant_memories = self.memory.get_relevant_memories(message)
-            memory_context = self._format_memories(relevant_memories)
-            logger.info(f"Retrieved {len(relevant_memories)} relevant memories")
+            # relevant_memories = self.memory.get_relevant_memories(message)
+            # memory_context = self._format_memories(relevant_memories)
+            # logger.info(f"Retrieved {len(relevant_memories)} relevant memories")
+            memory_context = "No previous context available."
             
             # Update working memory with current context
-            self.memory.update_working_memory("current_user", user_info)
-            self.memory.update_working_memory("platform", platform)
+            # self.memory.update_working_memory("current_user", user_info)
+            # self.memory.update_working_memory("platform", platform)
             
             # If message starts with @, route to specific agent
             if message.startswith("@"):
@@ -181,19 +182,6 @@ class GodFarda(BaseAgent):
             logger.error(f"Error processing message: {str(e)}")
             return {"error": f"Failed to process message: {str(e)}"}
             
-    def _format_memories(self, memories: List[Any]) -> str:
-        """Format memories into a context string"""
-        if not memories:
-            return "No relevant previous context."
-            
-        formatted = ["Previous relevant context:"]
-        for memory in memories:
-            dt = datetime.datetime.fromtimestamp(memory.timestamp)
-            timestamp = dt.strftime("%Y-%m-%d %H:%M:%S")
-            formatted.append(f"[{timestamp}] {memory.content}")
-            
-        return "\n".join(formatted)
-            
     async def handle_as_godfarda(self, message: str, user_info: Dict[str, Any], memory_context: str) -> Dict[str, Any]:
         """Handle messages as Godfarda with memory context"""
         system_message = f"""You are Godfarda, the top-level AI orchestrator. You:
@@ -201,8 +189,6 @@ class GodFarda(BaseAgent):
 2. Can delegate tasks to specific agents when needed
 3. Can handle general queries directly
 4. Always maintain a helpful and knowledgeable demeanor
-
-
 
 Available Agents:
 {self._format_agent_info()}
@@ -232,17 +218,17 @@ Remember to:
             if not response.success:
                 return {"error": f"Failed to get AI response: {response.error}"}
                 
-            response_content = response.data["message"]["content"]
+            response_content = response.data["response"]
             
             # Store response in memory
-            self.memory.add_memory(
-                f"Godfarda response: {response_content}",
-                "conversation",
-                {
-                    "user": user_info,
-                    "type": "outgoing"
-                }
-            )
+            # self.memory.add_memory(
+            #     f"Godfarda response: {response_content}",
+            #     "conversation",
+            #     {
+            #         "user": user_info,
+            #         "type": "outgoing"
+            #     }
+            # )
             
             return {
                 "response": response_content,
@@ -257,15 +243,26 @@ Remember to:
         """Delegate a message to a specific agent with memory context"""
         agent_info = self.agents[agent_name]
         
-        system_message = f"""You are {agent_name}, an AI assistant with expertise in {', '.join(agent_info.capabilities)}.
-You have access to the following tools: {', '.join(agent_info.tools)}.
-Respond according to your specific role and expertise.
+        system_message = f"""You are {agent_name}, an AI agent with specific capabilities.
+
+Your capabilities:
+{', '.join(agent_info.capabilities)}
+
+Your available tools:
+{', '.join(agent_info.tools)}
 
 Current User:
 - Username: {user_info.get('username', 'unknown')}
 - Name: {user_info.get('first_name', '')} {user_info.get('last_name', '')}
 
-{memory_context}"""
+{memory_context}
+
+Remember to:
+1. Stay within your capabilities and tools
+2. Question unclear instructions
+3. Highlight potential risks
+4. Never delete code or comments unless requested
+5. Only make changes related to the task"""
 
         try:
             response = await self.ollama.execute({
@@ -279,18 +276,18 @@ Current User:
             if not response.success:
                 return {"error": f"Failed to get agent response: {response.error}"}
                 
-            response_content = response.data["message"]["content"]
+            response_content = response.data["response"]
             
             # Store response in memory
-            self.memory.add_memory(
-                f"Agent {agent_name} response: {response_content}",
-                "conversation",
-                {
-                    "user": user_info,
-                    "agent": agent_name,
-                    "type": "outgoing"
-                }
-            )
+            # self.memory.add_memory(
+            #     f"Agent {agent_name} response: {response_content}",
+            #     "conversation",
+            #     {
+            #         "user": user_info,
+            #         "agent": agent_name,
+            #         "type": "outgoing"
+            #     }
+            # )
             
             return {
                 "response": response_content,
@@ -300,6 +297,19 @@ Current User:
         except Exception as e:
             logger.error(f"Error in agent response: {str(e)}")
             return {"error": f"Failed to generate response: {str(e)}"}
+            
+    def _format_memories(self, memories: List[Any]) -> str:
+        """Format memories into a context string"""
+        if not memories:
+            return "No relevant previous context."
+            
+        formatted = ["Previous relevant context:"]
+        for memory in memories:
+            dt = datetime.datetime.fromtimestamp(memory.timestamp)
+            timestamp = dt.strftime("%Y-%m-%d %H:%M:%S")
+            formatted.append(f"[{timestamp}] {memory.content}")
+            
+        return "\n".join(formatted)
             
     def _format_agent_info(self) -> str:
         """Format agent information for system message"""

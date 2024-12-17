@@ -264,9 +264,11 @@ class TelegramHandler(TelegramBaseTool):
                     ]
                 })
                 
-                friendly_message = error_response.get("response", 
-                    "I apologize, but I encountered an error while processing your request. "
-                    "The development team has been notified. Please try again later.")
+                if error_response.success and error_response.data:
+                    friendly_message = error_response.data["message"]["content"]
+                else:
+                    friendly_message = ("I apologize, but I encountered an error while processing your request. "
+                                     "The development team has been notified. Please try again later.")
                 
             except Exception as e:
                 logger.error(f"Failed to get AI error response: {e}", exc_info=True)

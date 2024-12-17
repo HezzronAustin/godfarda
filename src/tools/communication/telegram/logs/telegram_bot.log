@@ -1,20 +1,20 @@
-2024-12-17 14:51:34,820 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 14:51:34 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'352'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
-2024-12-17 14:51:34,821 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
-2024-12-17 14:51:34,821 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2024-12-17 14:51:34,821 - httpcore.http11 - DEBUG - receive_response_body.complete
-2024-12-17 14:51:34,821 - httpcore.http11 - DEBUG - response_closed.started
-2024-12-17 14:51:34,821 - httpcore.http11 - DEBUG - response_closed.complete
-2024-12-17 14:51:34,822 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[{'update_id': 794822779, 'message': {'message_id': 206, 'from': {'id': 925850080, 'is_bot': False, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'language_code': 'en'}, 'chat': {'id': 925850080, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'type': 'private'}, 'date': 1734447094, 'text': 'Hello'}}]`
-2024-12-17 14:51:34,822 - telegram.Bot - DEBUG - Getting updates: [794822779]
-2024-12-17 14:51:34,822 - __main__ - INFO - Received 1 updates
-2024-12-17 14:51:34,822 - __main__ - INFO - Processing update: {'message': {'channel_chat_created': False, 'delete_chat_photo': False, 'group_chat_created': False, 'supergroup_chat_created': False, 'text': 'Hello', 'chat': {'first_name': 'Hezzron', 'id': 925850080, 'last_name': 'Austin', 'type': <ChatType.PRIVATE>, 'username': 'hezzronaustin'}, 'date': 1734447094, 'message_id': 206, 'from': {'first_name': 'Hezzron', 'id': 925850080, 'is_bot': False, 'language_code': 'en', 'last_name': 'Austin', 'username': 'hezzronaustin'}}, 'update_id': 794822779}
-2024-12-17 14:51:34,823 - src.tools.communication.telegram.handler - DEBUG - Processing update: {
+2024-12-17 15:30:38,125 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:30:37 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'351'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:30:38,126 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:30:38,126 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:30:38,126 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:30:38,126 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:30:38,127 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:30:38,127 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[{'update_id': 794822783, 'message': {'message_id': 214, 'from': {'id': 925850080, 'is_bot': False, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'language_code': 'en'}, 'chat': {'id': 925850080, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'type': 'private'}, 'date': 1734449437, 'text': 'Ella'}}]`
+2024-12-17 15:30:38,127 - telegram.Bot - DEBUG - Getting updates: [794822783]
+2024-12-17 15:30:38,129 - __main__ - INFO - Received 1 updates
+2024-12-17 15:30:38,130 - __main__ - INFO - Processing update: {'message': {'channel_chat_created': False, 'delete_chat_photo': False, 'group_chat_created': False, 'supergroup_chat_created': False, 'text': 'Ella', 'chat': {'first_name': 'Hezzron', 'id': 925850080, 'last_name': 'Austin', 'type': <ChatType.PRIVATE>, 'username': 'hezzronaustin'}, 'date': 1734449437, 'message_id': 214, 'from': {'first_name': 'Hezzron', 'id': 925850080, 'is_bot': False, 'language_code': 'en', 'last_name': 'Austin', 'username': 'hezzronaustin'}}, 'update_id': 794822783}
+2024-12-17 15:30:38,130 - src.tools.communication.telegram.handler - DEBUG - Processing update: {
   "message": {
     "channel_chat_created": false,
     "delete_chat_photo": false,
     "group_chat_created": false,
     "supergroup_chat_created": false,
-    "text": "Hello",
+    "text": "Ella",
     "chat": {
       "first_name": "Hezzron",
       "id": 925850080,
@@ -22,8 +22,8 @@
       "type": "private",
       "username": "hezzronaustin"
     },
-    "date": 1734447094,
-    "message_id": 206,
+    "date": 1734449437,
+    "message_id": 214,
     "from": {
       "first_name": "Hezzron",
       "id": 925850080,
@@ -33,83 +33,83 @@
       "username": "hezzronaustin"
     }
   },
-  "update_id": 794822779
+  "update_id": 794822783
 }
-2024-12-17 14:51:34,823 - src.tools.communication.telegram.handler - INFO - Forwarding message to Godfarda from hezzronaustin: Hello
-2024-12-17 14:51:34,823 - src.agents.godfarda.godfarda_agent - INFO - GodFarda processing message: Hello
-2024-12-17 14:51:34,823 - src.agents.godfarda.godfarda_agent - INFO - From user: {
+2024-12-17 15:30:38,130 - src.tools.communication.telegram.handler - INFO - Forwarding message to Godfarda from hezzronaustin: Ella
+2024-12-17 15:30:38,131 - src.agents.godfarda.godfarda_agent - INFO - GodFarda processing message: Ella
+2024-12-17 15:30:38,131 - src.agents.godfarda.godfarda_agent - INFO - From user: {
   "username": "hezzronaustin",
   "first_name": "Hezzron",
   "last_name": "Austin",
   "chat_id": "925850080",
-  "message_id": 206
+  "message_id": 214
 }
-2024-12-17 14:51:34,823 - src.agents.godfarda.godfarda_agent - INFO - Platform: telegram
-2024-12-17 14:51:34,826 - src.agents.godfarda.godfarda_agent - ERROR - Error processing message: 'coroutine' object is not iterable
-2024-12-17 14:51:34,827 - src.tools.communication.telegram.handler - ERROR - Handling error: Failed to process message: 'coroutine' object is not iterable
-2024-12-17 14:51:34,827 - src.tools.ai.ollama.chat - DEBUG - Sending request to Ollama - Model: llama3.2, Messages: [{"role": "user", "content": "You are a helpful AI assistant. An error has occurred. Please provide a friendly and helpful response.\n\nUser: Error: Failed to process message: 'coroutine' object is not iterable\n\nPlease provide a friendly response to the user explaining the error."}]
-2024-12-17 14:51:42,160 - src.tools.ai.ollama.chat - DEBUG - Received response from Ollama: {"model": "llama3.2", "created_at": "2024-12-17T14:51:42.158483Z", "message": {"role": "assistant", "content": "Don't worry, I'm here to help you out!\n\nIt looks like there's been an issue with the way our conversation is processing your message. The error \"coroutine object is not iterable\" usually occurs when we try to use a coroutine (a special type of function in Python that can be paused and resumed) as if it were a regular iterable.\n\nTo fix this, let's take a step back. Can you please tell me more about what you were trying to do or say before the error happened? Was it related to a specific task or code snippet? The more context you provide, the better I'll be able to help you resolve the issue.\n\nIf you're comfortable sharing your code, feel free to paste it here, and we can work together to identify and fix the problem."}, "done_reason": "stop", "done": true, "total_duration": 7314318583, "load_duration": 30140125, "prompt_eval_count": 75, "prompt_eval_duration": 156000000, "eval_count": 161, "eval_duration": 7126000000}
-2024-12-17 14:51:42,161 - src.tools.communication.telegram.handler - ERROR - Failed to get AI error response: 'ToolResponse' object has no attribute 'get'
+2024-12-17 15:30:38,131 - src.agents.godfarda.godfarda_agent - INFO - Platform: telegram
+2024-12-17 15:30:38,134 - src.agents.godfarda.godfarda_agent - ERROR - Error processing message: 'coroutine' object is not iterable
+2024-12-17 15:30:38,134 - src.tools.communication.telegram.handler - ERROR - Handling error: Failed to process message: 'coroutine' object is not iterable
+2024-12-17 15:30:38,134 - src.tools.ai.ollama.chat - DEBUG - Sending request to Ollama - Model: llama3.2, Messages: [{"role": "user", "content": "You are a helpful AI assistant. An error has occurred. Please provide a friendly and helpful response.\n\nUser: Error: Failed to process message: 'coroutine' object is not iterable\n\nPlease provide a friendly response to the user explaining the error."}]
+2024-12-17 15:30:49,636 - src.tools.ai.ollama.chat - DEBUG - Received response from Ollama: {"model": "llama3.2", "created_at": "2024-12-17T15:30:49.634464Z", "message": {"role": "assistant", "content": "I'm so sorry to hear that an error has occurred!\n\nThe error \"coroutine\" object is not iterable typically occurs when you're trying to iterate over a coroutine (a special type of function in Python that can be paused and resumed) as if it were a regular iterable.\n\nThis could be due to a few reasons:\n\n1. **Trying to yield from an undefined iterator**: Make sure that the coroutine you're calling is actually defined and yielded from correctly.\n2. **Incorrect usage of async/await**: Ensure that your async functions are being used correctly, including proper use of await and async keywords.\n\nTo resolve this issue, try the following steps:\n\n1. Check the documentation for any specific library or module you're using to ensure you're using it correctly.\n2. Verify that your coroutine is properly defined and yielded from.\n3. Review your code to ensure you're not trying to iterate over a coroutine as if it were an iterable.\n\nIf you can provide more context about your code, I'd be happy to help you further troubleshoot the issue!\n\nDo you have any questions or would you like me to take a look at some example code to help clarify things?"}, "done_reason": "stop", "done": true, "total_duration": 11492802958, "load_duration": 37661416, "prompt_eval_count": 75, "prompt_eval_duration": 798000000, "eval_count": 236, "eval_duration": 10655000000}
+2024-12-17 15:30:49,637 - src.tools.communication.telegram.handler - ERROR - Failed to get AI error response: 'ToolResponse' object has no attribute 'get'
 Traceback (most recent call last):
   File "/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/handler.py", line 267, in handle_error
-    friendly_message = error_response.get("response",
-                      ^^^^^^^^^^^^^^^^^^
+    if error_response.success and error_response.data:
+                       ^^^^^^^^^^^^^^^^^^
   File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pydantic/main.py", line 892, in __getattr__
     raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
 AttributeError: 'ToolResponse' object has no attribute 'get'
-2024-12-17 14:51:42,162 - telegram.Bot - DEBUG - Calling Bot API endpoint `sendMessage` with parameters `{'chat_id': '925850080', 'text': "🤖 I apologize, but I encountered an error while processing your request. The development team has been notified. Please try again later.\n\n🔍 Technical details: Failed to process message: 'coroutine' object is not iterable"}`
-2024-12-17 14:51:42,163 - httpcore.connection - DEBUG - close.started
-2024-12-17 14:51:42,163 - httpcore.connection - DEBUG - close.complete
-2024-12-17 14:51:42,164 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
-2024-12-17 14:51:42,185 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039fd310>
-2024-12-17 14:51:42,185 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x1037865d0> server_hostname='api.telegram.org' timeout=5.0
-2024-12-17 14:51:42,202 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039fd460>
-2024-12-17 14:51:42,202 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2024-12-17 14:51:42,202 - httpcore.http11 - DEBUG - send_request_headers.complete
-2024-12-17 14:51:42,203 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2024-12-17 14:51:42,203 - httpcore.http11 - DEBUG - send_request_body.complete
-2024-12-17 14:51:42,203 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2024-12-17 14:51:42,236 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 14:51:42 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'511'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
-2024-12-17 14:51:42,237 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/sendMessage "HTTP/1.1 200 OK"
-2024-12-17 14:51:42,237 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2024-12-17 14:51:42,237 - httpcore.http11 - DEBUG - receive_response_body.complete
-2024-12-17 14:51:42,237 - httpcore.http11 - DEBUG - response_closed.started
-2024-12-17 14:51:42,237 - httpcore.http11 - DEBUG - response_closed.complete
-2024-12-17 14:51:42,237 - telegram.Bot - DEBUG - Call to Bot API endpoint `sendMessage` finished with return value `{'message_id': 207, 'from': {'id': 8139093437, 'is_bot': True, 'first_name': 'Godfarda', 'username': 'Godfardabot'}, 'chat': {'id': 925850080, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'type': 'private'}, 'date': 1734447102, 'text': "🤖 I apologize, but I encountered an error while processing your request. The development team has been notified. Please try again later.\n\n🔍 Technical details: Failed to process message: 'coroutine' object is not iterable"}`
-2024-12-17 14:51:42,238 - __main__ - INFO - Update processing result: success=False data=None error="Failed to process message: 'coroutine' object is not iterable"
-2024-12-17 14:51:42,238 - __main__ - INFO - Polling for updates with offset 794822780...
-2024-12-17 14:51:42,238 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822780}`
-2024-12-17 14:51:42,239 - httpcore.connection - DEBUG - close.started
-2024-12-17 14:51:42,239 - httpcore.connection - DEBUG - close.complete
-2024-12-17 14:51:42,239 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
-2024-12-17 14:51:42,257 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b41790>
-2024-12-17 14:51:42,257 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
-2024-12-17 14:51:42,274 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b41700>
-2024-12-17 14:51:42,274 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2024-12-17 14:51:42,275 - httpcore.http11 - DEBUG - send_request_headers.complete
-2024-12-17 14:51:42,275 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2024-12-17 14:51:42,275 - httpcore.http11 - DEBUG - send_request_body.complete
-2024-12-17 14:51:42,275 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2024-12-17 14:52:12,315 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 14:52:12 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
-2024-12-17 14:52:12,315 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
-2024-12-17 14:52:12,315 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2024-12-17 14:52:12,315 - httpcore.http11 - DEBUG - receive_response_body.complete
-2024-12-17 14:52:12,315 - httpcore.http11 - DEBUG - response_closed.started
-2024-12-17 14:52:12,315 - httpcore.http11 - DEBUG - response_closed.complete
-2024-12-17 14:52:12,315 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
-2024-12-17 14:52:12,315 - telegram.Bot - DEBUG - No new updates found.
-2024-12-17 14:52:12,315 - __main__ - INFO - Received 0 updates
-2024-12-17 14:52:12,315 - __main__ - INFO - Polling for updates with offset 794822780...
-2024-12-17 14:52:12,316 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822780}`
-2024-12-17 14:52:12,316 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2024-12-17 14:52:12,316 - httpcore.http11 - DEBUG - send_request_headers.complete
-2024-12-17 14:52:12,316 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2024-12-17 14:52:12,316 - httpcore.http11 - DEBUG - send_request_body.complete
-2024-12-17 14:52:12,316 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2024-12-17 14:52:39,829 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
-2024-12-17 14:52:39,829 - httpcore.http11 - DEBUG - response_closed.started
-2024-12-17 14:52:39,830 - httpcore.http11 - DEBUG - response_closed.complete
-2024-12-17 14:52:39,830 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
+2024-12-17 15:30:49,638 - telegram.Bot - DEBUG - Calling Bot API endpoint `sendMessage` with parameters `{'chat_id': '925850080', 'text': "🤖 I apologize, but I encountered an error while processing your request. The development team has been notified. Please try again later.\n\n🔍 Technical details: Failed to process message: 'coroutine' object is not iterable"}`
+2024-12-17 15:30:49,641 - httpcore.connection - DEBUG - close.started
+2024-12-17 15:30:49,641 - httpcore.connection - DEBUG - close.complete
+2024-12-17 15:30:49,642 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:30:49,673 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b413a0>
+2024-12-17 15:30:49,673 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x1037865d0> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:30:49,694 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b40ad0>
+2024-12-17 15:30:49,695 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:30:49,695 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:30:49,695 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:30:49,696 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:30:49,696 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:30:49,740 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:30:49 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'511'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:30:49,741 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/sendMessage "HTTP/1.1 200 OK"
+2024-12-17 15:30:49,742 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:30:49,742 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:30:49,742 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:30:49,743 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:30:49,743 - telegram.Bot - DEBUG - Call to Bot API endpoint `sendMessage` finished with return value `{'message_id': 215, 'from': {'id': 8139093437, 'is_bot': True, 'first_name': 'Godfarda', 'username': 'Godfardabot'}, 'chat': {'id': 925850080, 'first_name': 'Hezzron', 'last_name': 'Austin', 'username': 'hezzronaustin', 'type': 'private'}, 'date': 1734449449, 'text': "🤖 I apologize, but I encountered an error while processing your request. The development team has been notified. Please try again later.\n\n🔍 Technical details: Failed to process message: 'coroutine' object is not iterable"}`
+2024-12-17 15:30:49,743 - __main__ - INFO - Update processing result: success=False data=None error="Failed to process message: 'coroutine' object is not iterable"
+2024-12-17 15:30:49,743 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:30:49,743 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:30:49,743 - httpcore.connection - DEBUG - close.started
+2024-12-17 15:30:49,744 - httpcore.connection - DEBUG - close.complete
+2024-12-17 15:30:49,744 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:30:49,761 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b54b30>
+2024-12-17 15:30:49,762 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:30:49,778 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b41df0>
+2024-12-17 15:30:49,778 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:30:49,778 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:30:49,778 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:30:49,778 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:30:49,778 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:31:19,802 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:31:19 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:31:19,805 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:31:19,806 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:31:19,806 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:31:19,806 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:31:19,807 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:31:19,808 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:31:19,808 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:31:19,808 - __main__ - INFO - Received 0 updates
+2024-12-17 15:31:19,808 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:31:19,809 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:31:19,810 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:31:19,810 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:31:19,810 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:31:19,811 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:31:19,811 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:31:40,557 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
+2024-12-17 15:31:40,557 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:31:40,557 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:31:40,558 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
 Traceback (most recent call last):
   File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
     yield
@@ -195,30 +195,494 @@ Traceback (most recent call last):
   File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 317, in do_request
     raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
 telegram.error.NetworkError: httpx.ReadError: 
-2024-12-17 14:52:40,836 - __main__ - INFO - Polling for updates with offset 794822780...
-2024-12-17 14:52:40,837 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822780}`
-2024-12-17 14:52:40,838 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
-2024-12-17 14:52:40,874 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039fc950>
-2024-12-17 14:52:40,874 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
-2024-12-17 14:52:40,901 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039fc8c0>
-2024-12-17 14:52:40,901 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2024-12-17 14:52:40,902 - httpcore.http11 - DEBUG - send_request_headers.complete
-2024-12-17 14:52:40,902 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2024-12-17 14:52:40,902 - httpcore.http11 - DEBUG - send_request_body.complete
-2024-12-17 14:52:40,902 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
-2024-12-17 14:53:10,961 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 14:53:10 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
-2024-12-17 14:53:10,965 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
-2024-12-17 14:53:10,966 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
-2024-12-17 14:53:10,966 - httpcore.http11 - DEBUG - receive_response_body.complete
-2024-12-17 14:53:10,966 - httpcore.http11 - DEBUG - response_closed.started
-2024-12-17 14:53:10,967 - httpcore.http11 - DEBUG - response_closed.complete
-2024-12-17 14:53:10,968 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
-2024-12-17 14:53:10,968 - telegram.Bot - DEBUG - No new updates found.
-2024-12-17 14:53:10,968 - __main__ - INFO - Received 0 updates
-2024-12-17 14:53:10,968 - __main__ - INFO - Polling for updates with offset 794822780...
-2024-12-17 14:53:10,968 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822780}`
-2024-12-17 14:53:10,969 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
-2024-12-17 14:53:10,970 - httpcore.http11 - DEBUG - send_request_headers.complete
-2024-12-17 14:53:10,970 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
-2024-12-17 14:53:10,970 - httpcore.http11 - DEBUG - send_request_body.complete
-2024-12-17 14:53:10,970 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:31:41,562 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:31:41,563 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:31:41,564 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:31:41,607 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b57230>
+2024-12-17 15:31:41,607 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:31:41,631 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b55910>
+2024-12-17 15:31:41,631 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:31:41,631 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:31:41,631 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:31:41,632 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:31:41,632 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:32:11,672 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:32:11 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:32:11,673 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:32:11,673 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:32:11,673 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:32:11,673 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:32:11,673 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:32:11,674 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:32:11,674 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:32:11,674 - __main__ - INFO - Received 0 updates
+2024-12-17 15:32:11,674 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:32:11,674 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:32:11,674 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:32:11,674 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:32:11,675 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:32:11,675 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:32:11,675 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:32:35,490 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
+2024-12-17 15:32:35,491 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:32:35,492 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:32:35,492 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 293, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/bot.py", line 70, in main
+    updates = await bot.get_updates(offset=offset, timeout=30)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 4480, in get_updates
+    await self._post(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 619, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 648, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 202, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 334, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 317, in do_request
+    raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
+telegram.error.NetworkError: httpx.ReadError: 
+2024-12-17 15:32:36,508 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:32:36,510 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:32:36,512 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:32:36,538 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039a7e00>
+2024-12-17 15:32:36,538 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:32:36,559 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103973530>
+2024-12-17 15:32:36,560 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:32:36,561 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:32:36,561 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:32:36,561 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:32:36,561 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:06,608 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:33:06 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:33:06,609 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:33:06,610 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:33:06,610 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:33:06,610 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:33:06,611 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:33:06,611 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:33:06,611 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:33:06,611 - __main__ - INFO - Received 0 updates
+2024-12-17 15:33:06,612 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:33:06,612 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:33:06,613 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:06,613 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:33:06,613 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:33:06,613 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:33:06,613 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:28,120 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
+2024-12-17 15:33:28,122 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:33:28,122 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:33:28,122 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 293, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/bot.py", line 70, in main
+    updates = await bot.get_updates(offset=offset, timeout=30)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 4480, in get_updates
+    await self._post(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 619, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 648, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 202, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 334, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 317, in do_request
+    raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
+telegram.error.NetworkError: httpx.ReadError: 
+2024-12-17 15:33:29,128 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:33:29,128 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:33:29,130 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:33:29,172 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b693d0>
+2024-12-17 15:33:29,173 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:33:29,195 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039fdaf0>
+2024-12-17 15:33:29,196 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:29,196 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:33:29,197 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:33:29,197 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:33:29,197 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:59,244 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:33:59 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:33:59,244 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:33:59,244 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:33:59,245 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:33:59,245 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:33:59,245 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:33:59,245 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:33:59,245 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:33:59,245 - __main__ - INFO - Received 0 updates
+2024-12-17 15:33:59,245 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:33:59,246 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:33:59,246 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:33:59,247 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:33:59,247 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:33:59,247 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:33:59,247 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:34:20,009 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
+2024-12-17 15:34:20,010 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:34:20,010 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:34:20,010 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 293, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/bot.py", line 70, in main
+    updates = await bot.get_updates(offset=offset, timeout=30)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 4480, in get_updates
+    await self._post(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 619, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 648, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 202, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 334, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 317, in do_request
+    raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
+telegram.error.NetworkError: httpx.ReadError: 
+2024-12-17 15:34:21,016 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:34:21,017 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:34:21,018 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:34:21,037 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x1039307a0>
+2024-12-17 15:34:21,038 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:34:21,055 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103930710>
+2024-12-17 15:34:21,056 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:34:21,056 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:34:21,056 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:34:21,057 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:34:21,057 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:34:51,577 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:34:51 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:34:51,580 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:34:51,580 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:34:51,581 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:34:51,581 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:34:51,581 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:34:51,582 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:34:51,583 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:34:51,583 - __main__ - INFO - Received 0 updates
+2024-12-17 15:34:51,583 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:34:51,584 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:34:51,585 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:34:51,585 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:34:51,586 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:34:51,586 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:34:51,586 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:35:11,697 - httpcore.http11 - DEBUG - receive_response_headers.failed exception=ReadError(BrokenResourceError())
+2024-12-17 15:35:11,697 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:35:11,697 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:35:11,698 - __main__ - ERROR - Failed to get updates: httpx.ReadError: 
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/connection.py", line 103, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 136, in handle_async_request
+    raise exc
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 106, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 177, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_async/http11.py", line 217, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 293, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 155, in __exit__
+    self.gen.throw(value)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadError
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/communication/telegram/bot.py", line 70, in main
+    updates = await bot.get_updates(offset=offset, timeout=30)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 4480, in get_updates
+    await self._post(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 619, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/_bot.py", line 648, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 202, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_baserequest.py", line 334, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/telegram/request/_httpxrequest.py", line 317, in do_request
+    raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
+telegram.error.NetworkError: httpx.ReadError: 
+2024-12-17 15:35:12,702 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:35:12,702 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:35:12,702 - httpcore.connection - DEBUG - connect_tcp.started host='api.telegram.org' port=443 local_address=None timeout=5.0 socket_options=None
+2024-12-17 15:35:12,735 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103b555e0>
+2024-12-17 15:35:12,735 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x103786d50> server_hostname='api.telegram.org' timeout=5.0
+2024-12-17 15:35:12,750 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x103973650>
+2024-12-17 15:35:12,750 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:35:12,751 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:35:12,751 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:35:12,751 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:35:12,751 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2024-12-17 15:35:42,877 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Server', b'nginx/1.18.0'), (b'Date', b'Tue, 17 Dec 2024 15:35:42 GMT'), (b'Content-Type', b'application/json'), (b'Content-Length', b'23'), (b'Connection', b'keep-alive'), (b'Strict-Transport-Security', b'max-age=31536000; includeSubDomains; preload'), (b'Access-Control-Allow-Origin', b'*'), (b'Access-Control-Allow-Methods', b'GET, POST, OPTIONS'), (b'Access-Control-Expose-Headers', b'Content-Length,Content-Type,Date,Server,Connection')])
+2024-12-17 15:35:42,878 - httpx - INFO - HTTP Request: POST https://api.telegram.org/bot8139093437:AAGyb6pZehLD5GPeO6P4XLM1J40xnYOw-G8/getUpdates "HTTP/1.1 200 OK"
+2024-12-17 15:35:42,878 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2024-12-17 15:35:42,878 - httpcore.http11 - DEBUG - receive_response_body.complete
+2024-12-17 15:35:42,878 - httpcore.http11 - DEBUG - response_closed.started
+2024-12-17 15:35:42,878 - httpcore.http11 - DEBUG - response_closed.complete
+2024-12-17 15:35:42,879 - telegram.Bot - DEBUG - Call to Bot API endpoint `getUpdates` finished with return value `[]`
+2024-12-17 15:35:42,879 - telegram.Bot - DEBUG - No new updates found.
+2024-12-17 15:35:42,879 - __main__ - INFO - Received 0 updates
+2024-12-17 15:35:42,879 - __main__ - INFO - Polling for updates with offset 794822784...
+2024-12-17 15:35:42,879 - telegram.Bot - DEBUG - Calling Bot API endpoint `getUpdates` with parameters `{'timeout': 30, 'offset': 794822784}`
+2024-12-17 15:35:42,880 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2024-12-17 15:35:42,880 - httpcore.http11 - DEBUG - send_request_headers.complete
+2024-12-17 15:35:42,881 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2024-12-17 15:35:42,881 - httpcore.http11 - DEBUG - send_request_body.complete
+2024-12-17 15:35:42,881 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>

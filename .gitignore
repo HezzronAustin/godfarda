@@ -36,6 +36,14 @@ ENV/
 *.swp
 *.swo
 
+# Log files
+*.log
+**/logs/
+**/log/
+
+
 # OS
 .DS_Store
 Thumbs.db
+*.log
+src/*/*/*/logs/telegram_bot.log
