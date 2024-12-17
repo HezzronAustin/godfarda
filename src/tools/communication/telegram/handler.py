@@ -2,6 +2,10 @@ from typing import Dict, Any
 from .base import TelegramBaseTool
 from src.tools.ai.ollama.chat import OllamaChatTool
 from src.tools.templates.tool_template import ToolResponse
+from src.agents.godfarda.godfarda_agent import GodFarda, AgentConfig
+from src.core.trigger_monitor.trigger_monitor import get_trigger_monitor
+from src.core.events import EventManager, EventType, EventPlatform, EventCategory
+from .trigger import TelegramTrigger
 import json
 import logging
 import asyncio
@@ -9,16 +13,34 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 class TelegramHandler(TelegramBaseTool):
-    """
-    Tool for handling Telegram messages with AI integration.
-    Passes messages directly between Telegram and Ollama.
-    """
+    """Handler for Telegram messages with Godfarda integration"""
     
     def __init__(self):
         super().__init__()
+        # Initialize Godfarda agent
+        self.godfarda = GodFarda(AgentConfig(
+            name="godfarda",
+            allowed_tools=["ollama_chat", "codebase_search", "edit_file", "view_file"],
+            parameters={"model": "llama3.2"}
+        ))
+        # Keep Ollama for error handling and fallback
         self.ollama = OllamaChatTool()
+        # Initialize trigger monitoring
+        self.trigger_monitor = get_trigger_monitor()
+        self.telegram_trigger = TelegramTrigger()
+        self.trigger_monitor.register_trigger(self.telegram_trigger)
+        # Initialize event manager
+        self.event_manager = EventManager()
         
-    def get_schema(self) -> Dict[str, Any]:
+    async def initialize(self, token: str):
+        """Initialize the handler and Godfarda agent"""
+        await super().initialize(token)
+        # Initialize Godfarda
+        if not await self.godfarda.initialize():
+            logger.error("Failed to initialize Godfarda agent")
+            raise RuntimeError("Godfarda initialization failed")
+            
+    async def get_schema(self) -> Dict[str, Any]:
         """Define the parameter schema for the Telegram handler"""
         return {
             "action": {
@@ -41,7 +63,7 @@ class TelegramHandler(TelegramBaseTool):
         }
         
     async def execute(self, params: Dict[str, Any]) -> ToolResponse:
-        """Execute the Telegram handler with AI integration"""
+        """Execute the Telegram handler with Godfarda integration"""
         try:
             await self.ensure_initialized(params["token"])
             
@@ -58,134 +80,177 @@ class TelegramHandler(TelegramBaseTool):
             error_msg = f"Handler error: {str(e)}"
             logger.error(error_msg)
             return ToolResponse(success=False, error=error_msg)
-
-    async def handle_agent_message(self, chat_id: str, user_message: str, agent_name: str) -> ToolResponse:
-        """Handle a message directed to a specific agent.
-        
-        Args:
-            chat_id (str): The chat ID where the message originated
-            user_message (str): The user's message
-            agent_name (str): The name of the agent to communicate with
             
-        Returns:
-            ToolResponse containing the agent's response
-        """
-        logger.info(f"Processing message '{user_message}' for agent '{agent_name}' from chat {chat_id}")
-        
-        # Create agent-specific system message
-        system_message = f"You are {agent_name}, an AI assistant. Respond in a way that reflects your specific role and expertise."
-        
-        # Get AI response from Ollama
-        ai_response = await self.ollama.execute({
-            "model": "llama3.2",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": system_message
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ]
-        })
-        
-        if not ai_response.success:
-            error_msg = f"Failed to get AI response: {ai_response.error}"
-            logger.error(error_msg)
-            return ToolResponse(success=False, error=error_msg)
-        
-        # Extract AI message
-        ai_message = ai_response.data["message"]["content"]
-        logger.info(f"Agent {agent_name} response: {ai_message}")
-        
-        # Send response with typing animation
-        try:
-            await self.bot.send_typing_action(chat_id)
-            await asyncio.sleep(2)  # Simulate typing
-            await self.bot.send_message(chat_id=chat_id, text=ai_message)
-            
-            return ToolResponse(success=True, data={
-                "agent": agent_name,
-                "response": ai_message
-            })
-        except Exception as e:
-            error_msg = f"Failed to send message: {str(e)}"
-            logger.error(error_msg)
-            return ToolResponse(success=False, error=error_msg)
-
     async def handle_update(self, params: Dict[str, Any]) -> ToolResponse:
-        """Handle a Telegram update"""
-        update = params["update"]
-        if not update.get("message") or not update["message"].get("text"):
-            return ToolResponse(success=False, error="No message text found")
-            
-        # Extract message details
-        message = update["message"]
-        chat_id = str(message["chat"]["id"])
-        user_message = message["text"]
-        
-        # Check if message is directed to a specific agent
-        if user_message.startswith("@"):
-            # Extract agent name
-            space_index = user_message.find(" ")
-            if space_index == -1:
-                return ToolResponse(success=False, error="No message provided for agent")
-                
-            agent_name = user_message[1:space_index]
-            actual_message = user_message[space_index + 1:]
-            
-            # Handle message for specific agent
-            return await self.handle_agent_message(chat_id, actual_message, agent_name)
-        
-        # Default handling for non-agent messages
-        logger.info(f"Processing general message '{user_message}' from chat {chat_id}")
-        
-        # Get AI response
-        logger.info("Sending to Ollama...")
-        ai_response = await self.ollama.execute({
-            "model": "llama3.2",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are Farda's AI assistant. Always respond respectfully and end your messages with 'sir'. Keep responses helpful but concise."
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ]
-        })
-        logger.info(f"Ollama response: {json.dumps(ai_response.__dict__, indent=2)}")
-        
-        if not ai_response.success:
-            error_msg = f"Failed to get AI response: {ai_response.error}"
-            logger.error(error_msg)
-            return ToolResponse(
-                success=False,
-                error=error_msg
-            )
-        
-        # Extract AI message
-        ai_message = ai_response.data["message"]["content"]
-        logger.info(f"Sending message back to Telegram: {ai_message}")
-        
-        # Send response back to user
+        """Handle a Telegram update by forwarding to Godfarda"""
         try:
-            await self.bot.send_message(
-                chat_id=chat_id,
-                text=ai_message
-            )
-            logger.info("Message sent successfully")
+            update = params["update"]
+            if not update.get("message") or not update["message"].get("text"):
+                return ToolResponse(success=False, error="No message text found")
+                
+            # Extract message details
+            message = update["message"]
+            chat_id = str(message["chat"]["id"])
+            user_message = message["text"]
+            user_info = {
+                "username": message["from"].get("username", "unknown"),
+                "first_name": message["from"].get("first_name", ""),
+                "last_name": message["from"].get("last_name", ""),
+                "chat_id": chat_id,
+                "message_id": message["message_id"]
+            }
             
-            return ToolResponse(success=True, data={
-                "sent_message": ai_message
-            })
+            logger.info(f"Forwarding message to Godfarda from {user_info['username']}: {user_message}")
+            
+            try:
+                # Process message through Godfarda
+                response = await self.godfarda.process({
+                    "message": user_message,
+                    "user_info": user_info,
+                    "platform": "telegram"
+                })
+                
+                if "error" in response:
+                    return await self.handle_error(chat_id, response["error"])
+                    
+                # Show typing animation and send response
+                await self.send_typing_action(int(chat_id))
+                await asyncio.sleep(1.5)  # Shorter typing delay
+                
+                sent_message = await self.bot.send_message(
+                    chat_id=chat_id,
+                    text=response["response"],
+                    reply_to_message_id=message["message_id"]
+                )
+                
+                return ToolResponse(success=True, data={
+                    "agent": response.get("agent", "godfarda"),
+                    "response": response["response"],
+                    "user": user_info,
+                    "message_id": sent_message.message_id
+                })
+                
+            except Exception as e:
+                return await self.handle_error(chat_id, str(e))
+                
         except Exception as e:
-            error_msg = f"Failed to send message: {str(e)}"
+            error_msg = f"Failed to process message: {str(e)}"
             logger.error(error_msg)
             return ToolResponse(success=False, error=error_msg)
+            
+    async def handle_error(self, chat_id: str, error: str) -> ToolResponse:
+        """Handle errors with a friendly AI response"""
+        try:
+            logger.error(f"Error occurred: {error}")
+            
+            # Get AI response for error handling
+            error_response = await self.ollama.execute({
+                "model": "llama3.2",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a helpful assistant handling an error. Respond in a friendly and helpful way, explaining the issue and suggesting next steps."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"An error occurred: {error}. Please provide a user-friendly response."
+                    }
+                ]
+            })
+            
+            if error_response.success:
+                error_message = error_response.data["message"]["content"]
+            else:
+                error_message = f"I encountered an error: {error}. Please try again later."
+            
+            await self.send_typing_action(int(chat_id))
+            await asyncio.sleep(1)
+            await self.bot.send_message(chat_id=chat_id, text=error_message)
+            
+            return ToolResponse(success=False, error=error, data={
+                "friendly_message": error_message
+            })
+            
+        except Exception as e:
+            logger.error(f"Error in error handler: {str(e)}")
+            return ToolResponse(success=False, error=str(e))
+            
+    async def handle_message(self, message: Dict[str, Any]) -> ToolResponse:
+        """Handle an incoming Telegram message"""
+        try:
+            # Trigger message received event
+            self.event_manager.trigger_event(
+                event_type=EventType.MESSAGE_RECEIVED,
+                platform=EventPlatform.TELEGRAM,
+                category=EventCategory.COMMUNICATION,
+                body={
+                    "chat_id": message.get("chat", {}).get("id"),
+                    "user_id": message.get("from", {}).get("id"),
+                    "text": message.get("text", ""),
+                    "message_id": message.get("message_id"),
+                    "raw_message": message
+                }
+            )
+            
+            # Process message with Godfarda
+            response = await self.godfarda.process(message)
+            
+            # Trigger AI response event
+            self.event_manager.trigger_event(
+                event_type=EventType.AI_RESPONDED,
+                platform=EventPlatform.TELEGRAM,
+                category=EventCategory.AI_INTERACTION,
+                body={
+                    "chat_id": message.get("chat", {}).get("id"),
+                    "user_id": message.get("from", {}).get("id"),
+                    "response": response,
+                    "original_message": message
+                }
+            )
+            
+            return ToolResponse(success=True, data=response)
+            
+        except Exception as e:
+            logger.error(f"Error handling message: {str(e)}")
+            # Trigger error event
+            self.event_manager.trigger_event(
+                event_type=EventType.MESSAGE_RECEIVED,
+                platform=EventPlatform.TELEGRAM,
+                category=EventCategory.SYSTEM,
+                body={
+                    "error": str(e),
+                    "chat_id": message.get("chat", {}).get("id"),
+                    "message_id": message.get("message_id")
+                }
+            )
+            return ToolResponse(success=False, error=str(e))
+
+    async def process_update(self, update: Dict[str, Any]) -> ToolResponse:
+        """Process a Telegram update"""
+        try:
+            # Trigger webhook received event
+            self.event_manager.trigger_event(
+                event_type=EventType.WEBHOOK_RECEIVED,
+                platform=EventPlatform.TELEGRAM,
+                category=EventCategory.WEBHOOK,
+                body={
+                    "update_id": update.get("update_id"),
+                    "raw_update": update
+                }
+            )
+            
+            if "message" in update:
+                return await self.handle_message(update["message"])
+            elif "callback_query" in update:
+                return await self.handle_callback_query(update["callback_query"])
+            else:
+                logger.warning(f"Unsupported update type: {update}")
+                return ToolResponse(success=False, error="Unsupported update type")
                 
+        except Exception as e:
+            logger.error(f"Error processing update: {str(e)}")
+            return ToolResponse(success=False, error=str(e))
+            
     async def setup_webhook(self, params: Dict[str, Any]) -> ToolResponse:
         """Set up webhook for receiving Telegram updates"""
         try:
@@ -202,50 +267,3 @@ class TelegramHandler(TelegramBaseTool):
             
         except Exception as e:
             return ToolResponse(success=False, error=self.format_error(e))
-    
-    async def process_update(self, params: Dict[str, Any]) -> ToolResponse:
-        """Process a webhook update from Telegram"""
-        try:
-            await self.ensure_initialized(params["token"])
-            update = params["update"]
-            
-            if not update.get("message") or not update["message"].get("text"):
-                logger.error("No message text found in update")
-                return ToolResponse(success=False, error="No message text found")
-            
-            # Extract message details
-            message = update["message"]
-            chat_id = message["chat"]["id"]
-            text = message["text"]
-            
-            logger.info(f"Processing message '{text}' from chat {chat_id}")
-            
-            # Get AI response from Ollama
-            logger.info("Sending to Ollama...")
-            ollama_response = await self.ollama.execute({
-                "messages": [{"role": "user", "content": text}]
-            })
-            
-            if not ollama_response.success:
-                error_msg = f"Ollama error: {ollama_response.error}"
-                logger.error(error_msg)
-                return ToolResponse(success=False, error=error_msg)
-            
-            # Extract AI response
-            ai_message = ollama_response.data["message"]["content"]
-            logger.info(f"Got response from Ollama: {ai_message}")
-            
-            # Send response back to Telegram
-            logger.info("Sending response to Telegram...")
-            await self.bot.send_message(chat_id=chat_id, text=ai_message)
-            logger.info("Response sent successfully")
-            
-            return ToolResponse(success=True, data={
-                "chat_id": chat_id,
-                "response": ai_message
-            })
-            
-        except Exception as e:
-            error_msg = f"Error processing update: {str(e)}"
-            logger.error(error_msg)
-            return ToolResponse(success=False, error=error_msg)
