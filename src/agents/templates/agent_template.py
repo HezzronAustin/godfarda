@@ -14,6 +14,12 @@ class BaseAgent(ABC):
     def __init__(self, config: AgentConfig):
         self.config = config
         self.tools: Dict[str, Any] = {}  # Will store tool instances
+        # Initialize tools
+        from ...core.registry import registry
+        for tool_name in config.allowed_tools:
+            tool_class = registry.get_tool(tool_name)
+            if tool_class:
+                self.tools[tool_name] = tool_class()
         
     @abstractmethod
     async def initialize(self) -> bool:

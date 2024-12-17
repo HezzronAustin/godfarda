@@ -13,3 +13,6 @@ def register_agents():
     """Register all available agents."""
     from ..core.registry import registry
     registry.register_agent(TextAgent)
+
+# Import communications_agent lazily to avoid circular imports
+from .communications_agent import CommunicationsAgent

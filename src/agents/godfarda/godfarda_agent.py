@@ -66,10 +66,19 @@ class GodFarda(BaseAgent):
         """Initialize the Godfarda agent and its memory system"""
         try:
             # Initialize Ollama for AI responses
-            self.ollama = self.tools.get("ollama_chat")
-            if not self.ollama:
-                logger.error("Ollama chat tool not available")
+            from src.core.registry import registry
+            
+            ollama_class = registry.get_tool("OllamaChatTool")
+            if not ollama_class:
+                logger.error("OllamaChatTool not found in registry")
                 return False
+                
+            self.ollama = ollama_class()
+            if not await self.ollama.initialize():
+                logger.error("Failed to initialize Ollama chat tool")
+                return False
+                
+            logger.info("Ollama chat tool initialized successfully")
             
             # Initialize memory system
             await self.memory.add_memory(
@@ -83,7 +92,7 @@ class GodFarda(BaseAgent):
             return True
             
         except Exception as e:
-            logger.error(f"Failed to initialize Godfarda: {str(e)}")
+            logger.error(f"Failed to initialize Godfarda: {str(e)}", exc_info=True)
             return False
             
     async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
