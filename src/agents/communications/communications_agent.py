@@ -11,7 +11,7 @@ import logging
 from src.tools.communication.telegram.handler import TelegramHandler
 from src.tools.ai import AIModel, AIModelFactory, Message, MessageRole, ModelResponse
 from src.agents.base import BaseAgent, AgentConfig
-from .memory.memory_store import CommunicationsMemory
+from src.agents.communications.memory.memory_store import CommunicationsMemory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -73,13 +73,13 @@ class CommunicationsAgent(BaseAgent):
         
         # Initialize AI model
         self.ai_model: Optional[AIModel] = None
-        self.ai_model_name = config.get("ai_model_name", "ollama")
-        self.ai_model_params = config.get("ai_model_params", {})
+        self.ai_model_name = config.parameters.get("ai_model_name", "ollama")
+        self.ai_model_params = config.parameters.get("ai_model_params", {})
         
         # Conversation history for AI context
         self.conversation_history: Dict[str, List[Message]] = {}
     
-    def initialize(self):
+    async def initialize(self) -> bool:
         """Initialize the agent and its AI model."""
         try:
             self.ai_model = AIModelFactory.create_model(self.ai_model_name, **self.ai_model_params)
@@ -88,6 +88,45 @@ class CommunicationsAgent(BaseAgent):
         except Exception as e:
             logger.error(f"Error initializing AI model: {e}")
             return False
+    
+    async def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process input data according to BaseAgent interface."""
+        try:
+            message = input_data.get("message", "")
+            user_info = input_data.get("user_info", {})
+            platform = input_data.get("platform", "unknown")
+            
+            logger.info(f"Communications agent processing message: {message}")
+            logger.info(f"From user: {user_info}")
+            logger.info(f"Platform: {platform}")
+            
+            # Process through the appropriate platform tool
+            if platform in self._tools:
+                response = await self.process_message(
+                    platform=platform,
+                    user_id=str(user_info.get("chat_id", "unknown")),
+                    message=message
+                )
+                
+                if response:
+                    return {
+                        "response": response,
+                        "agent": "communications",
+                        "platform": platform
+                    }
+                    
+            return {
+                "error": f"Failed to process message for platform: {platform}",
+                "response": "I'm sorry, I couldn't process your message at this time."
+            }
+            
+        except Exception as e:
+            error_msg = f"Error in communications agent: {str(e)}"
+            logger.error(error_msg)
+            return {
+                "error": error_msg,
+                "response": "I encountered an error while processing your message."
+            }
     
     def register_tool(self, platform: str, tool: CommunicationTool):
         """
@@ -216,8 +255,8 @@ class CommunicationsAgent(BaseAgent):
         
         return self._tools[platform].setup_channel(params)
     
-    def cleanup(self):
-        """Clean up resources used by the agent."""
+    async def cleanup(self):
+        """Clean up resources."""
         # Clean up AI model if needed
         if self.ai_model and hasattr(self.ai_model, 'cleanup'):
             self.ai_model.cleanup()

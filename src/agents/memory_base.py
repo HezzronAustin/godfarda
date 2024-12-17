@@ -47,21 +47,21 @@ class BaseMemoryStore:
             conn.execute('CREATE INDEX IF NOT EXISTS idx_timestamp ON memories(timestamp)')
             conn.execute('CREATE INDEX IF NOT EXISTS idx_type ON memories(memory_type)')
     
-    def add_memory(self, content: str, memory_type: str, metadata: Dict[str, Any] = None, importance: float = 0.0):
+    def add_memory(self, content: str, memory_type: str, metadata: Dict[str, Any] = None, importance: float = 0.0) -> bool:
         """Add a new memory entry"""
-        entry = MemoryEntry(
-            content=content,
-            timestamp=time.time(),
-            memory_type=memory_type,
-            metadata=metadata or {},
-            importance=importance
-        )
-        
-        with sqlite3.connect(self.db_path) as conn:
-            conn.execute(
-                'INSERT INTO memories (content, timestamp, memory_type, metadata, importance) VALUES (?, ?, ?, ?, ?)',
-                (entry.content, entry.timestamp, entry.memory_type, json.dumps(entry.metadata), entry.importance)
-            )
+        try:
+            if metadata is None:
+                metadata = {}
+            
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute(
+                    'INSERT INTO memories (content, timestamp, memory_type, metadata, importance) VALUES (?, ?, ?, ?, ?)',
+                    (content, time.time(), memory_type, json.dumps(metadata), importance)
+                )
+                return True
+        except Exception as e:
+            logger.error(f"Error adding memory: {e}")
+            return False
     
     def get_recent_memories(self, memory_type: Optional[str] = None, limit: int = 10) -> List[MemoryEntry]:
         """Retrieve recent memories, optionally filtered by type"""

@@ -42,6 +42,8 @@ class TelegramHandler(TelegramBaseTool):
             ensure_single_instance()
             
             await super().initialize(token)
+            # Store token
+            self.token = token
             # Initialize Godfarda
             if not await self.godfarda.initialize():
                 error_msg = "Failed to initialize Godfarda agent"

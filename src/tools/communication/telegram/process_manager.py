@@ -9,12 +9,23 @@ logger = logging.getLogger(__name__)
 def get_bot_processes() -> List[psutil.Process]:
     """Find all running Python processes that match our Telegram bot pattern"""
     bot_processes = []
+    current_pid = os.getpid()
+    
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
+            # Skip the current process
+            if proc.pid == current_pid:
+                continue
+                
             cmdline = proc.info['cmdline']
-            if cmdline and any('telegram' in str(cmd).lower() for cmd in cmdline):
-                if 'python' in proc.info['name'].lower():
-                    bot_processes.append(proc)
+            if not cmdline:
+                continue
+                
+            # Look specifically for our telegram bot module
+            if ('python' in proc.info['name'].lower() and 
+                any('src.tools.communication.telegram.bot' in str(cmd) for cmd in cmdline)):
+                bot_processes.append(proc)
+                
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     return bot_processes

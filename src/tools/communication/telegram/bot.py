@@ -59,14 +59,16 @@ async def main():
         await bot.delete_webhook()
         logger.info("Webhook deleted successfully")
         
-        logger.info("Starting Telegram bot...")
+        logger.info(f"Starting Telegram bot with token: {TELEGRAM_BOT_TOKEN[:5]}...")
         offset = None
         
         # Start receiving updates
         while True:
             try:
                 # Get updates from Telegram with offset
+                logger.info(f"Polling for updates with offset {offset}...")
                 updates = await bot.get_updates(offset=offset, timeout=30)
+                logger.info(f"Received {len(updates)} updates")
                 
                 for update in updates:
                     # Update offset to mark messages as read
@@ -74,7 +76,8 @@ async def main():
                     
                     try:
                         logger.info(f"Processing update: {update.to_dict()}")
-                        await handler.process_update(update.to_dict())
+                        result = await handler.process_update(update.to_dict())
+                        logger.info(f"Update processing result: {result}")
                     except Exception as e:
                         logger.error(f"Error processing update: {e}", exc_info=True)
                         # Try to notify user of error

@@ -3,6 +3,9 @@ from telegram import Bot
 from telegram.error import TelegramError
 from src.tools.templates.tool_template import BaseTool
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TelegramBaseTool(BaseTool):
     """Base class for all Telegram-related tools"""
@@ -13,8 +16,19 @@ class TelegramBaseTool(BaseTool):
         
     async def initialize(self, token: str):
         """Initialize the Telegram bot with the given token"""
-        self.bot = Bot(token=token)
-        
+        try:
+            self.bot = Bot(token=token)
+            # Verify token by getting bot info
+            me = await self.bot.get_me()
+            logger.info(f"Successfully connected to Telegram as @{me.username}")
+            return True
+        except TelegramError as e:
+            logger.error(f"Failed to initialize Telegram bot: {e}")
+            raise RuntimeError(f"Invalid Telegram token: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error initializing Telegram bot: {e}")
+            raise
+            
     async def ensure_initialized(self, token: str):
         """Ensure the bot is initialized with the given token"""
         if not self.bot:

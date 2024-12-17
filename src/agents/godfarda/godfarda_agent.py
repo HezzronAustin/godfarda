@@ -16,6 +16,7 @@ from pathlib import Path
 from src.agents.base import BaseAgent, AgentConfig
 from .memory.memory_store import GodFardaMemory
 import datetime
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +91,17 @@ class GodFarda(BaseAgent):
     async def initialize(self) -> bool:
         """Initialize the Godfarda agent and its memory system"""
         try:
+            # Log initialization
+            logger.info(f"Initializing GodFarda with {len(self.agents)} registered agents")
+            
+            # Store initialization in memory
+            self.memory.add_memory(
+                "GodFarda initialization",
+                "system",
+                {"event": "initialization"},
+                importance=1.0
+            )
+            
             # Initialize Ollama for AI responses
             from src.core.registry import registry
             
@@ -105,14 +117,6 @@ class GodFarda(BaseAgent):
                 
             logger.info("Ollama chat tool initialized successfully")
             
-            # Initialize memory system
-            await self.memory.add_memory(
-                "Godfarda initialization",
-                "system",
-                {"event": "initialization"},
-                importance=1.0
-            )
-            
             logger.info("Godfarda agent initialized successfully")
             return True
             
@@ -127,8 +131,12 @@ class GodFarda(BaseAgent):
             user_info = input_data.get("user_info", {})
             platform = input_data.get("platform", "unknown")
             
+            logger.info(f"GodFarda processing message: {message}")
+            logger.info(f"From user: {json.dumps(user_info, indent=2)}")
+            logger.info(f"Platform: {platform}")
+            
             # Store message in memory
-            await self.memory.add_memory(
+            self.memory.add_memory(
                 f"User message: {message}",
                 "conversation",
                 {
@@ -141,6 +149,7 @@ class GodFarda(BaseAgent):
             # Get relevant memories for context
             relevant_memories = await self.memory.get_relevant_memories(message)
             memory_context = self._format_memories(relevant_memories)
+            logger.info(f"Retrieved {len(relevant_memories)} relevant memories")
             
             # Update working memory with current context
             self.memory.update_working_memory("current_user", user_info)
@@ -224,7 +233,7 @@ Remember to:
             response_content = response.data["message"]["content"]
             
             # Store response in memory
-            await self.memory.add_memory(
+            self.memory.add_memory(
                 f"Godfarda response: {response_content}",
                 "conversation",
                 {
@@ -271,7 +280,7 @@ Current User:
             response_content = response.data["message"]["content"]
             
             # Store response in memory
-            await self.memory.add_memory(
+            self.memory.add_memory(
                 f"Agent {agent_name} response: {response_content}",
                 "conversation",
                 {
