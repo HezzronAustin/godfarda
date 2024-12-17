@@ -30,7 +30,7 @@ def get_available_agents() -> List[str]:
     agents = []
     
     for item in os.listdir(agents_dir):
-        if os.path.isdir(os.path.join(agents_dir, item)) and not item.startswith('_') and not item in ['templates', 'tests', 'communications']:
+        if os.path.isdir(os.path.join(agents_dir, item)) and not item.startswith('_') and not item in ['_templates', 'tests', 'communications']:
             agents.append(item)
     
     return agents
