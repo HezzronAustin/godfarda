@@ -27,6 +27,29 @@ ollama pull llama3.2
 ollama serve
 ```
 
+## 🛠️ Running Services
+
+We provide a convenient command-line interface to manage all services:
+
+```bash
+# Start the Telegram bot
+./manage.py telegram
+
+# Start the dashboard (default: http://127.0.0.1:8000)
+./manage.py dashboard
+
+# Start on a different host/port
+./manage.py dashboard --host=0.0.0.0 --port=8080
+
+# Start the Ollama server
+./manage.py ollama
+```
+
+You can see all available commands by running:
+```bash
+./manage.py --help
+```
+
 ## 🧪 Testing
 
 We have several test suites available:
