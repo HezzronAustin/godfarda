@@ -33,6 +33,10 @@ class TelegramMessageTool(TelegramBaseTool):
             "token": {
                 "type": "string",
                 "description": "Telegram Bot API token"
+            },
+            "offset": {
+                "type": "integer",
+                "description": "Identifier of the first update to be returned for get_updates"
             }
         }
     
@@ -52,7 +56,7 @@ class TelegramMessageTool(TelegramBaseTool):
             if params["action"] == "send_message":
                 return await self._send_message(params)
             elif params["action"] == "get_updates":
-                return await self._get_updates()
+                return await self._get_updates(params)
                 
             return ToolResponse(success=False, error="Invalid action specified")
             
@@ -75,9 +79,13 @@ class TelegramMessageTool(TelegramBaseTool):
             "date": result.date.isoformat()
         })
         
-    async def _get_updates(self) -> ToolResponse:
+    async def _get_updates(self, params: Dict[str, Any]) -> ToolResponse:
         """Handle get_updates action"""
-        updates = await self.bot.get_updates()
+        kwargs = {}
+        if "offset" in params:
+            kwargs["offset"] = params["offset"]
+            
+        updates = await self.bot.get_updates(**kwargs)
         formatted_updates = []
         
         for update in updates:

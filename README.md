@@ -12,28 +12,63 @@ pip install -r requirements.txt
 2. **Configure Environment**
 Create a `.env` file in the root directory:
 ```env
-DEBUG=True
-REQUIRE_API_KEY=True
-API_KEY=your-secret-key
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 ```
 
-3. **Run the API**
+3. **Install Ollama**
+Follow the [Ollama installation instructions](https://ollama.ai/download) for your platform.
+Then pull the llama3.2 model:
 ```bash
-uvicorn src.api.main:app --reload
+ollama pull llama3.2
 ```
 
-The API will be available at `http://localhost:8000/api/v1/`
+4. **Start Ollama Server**
+```bash
+ollama serve
+```
+
+## 🧪 Testing
+
+We have several test suites available:
+
+### Individual Tool Tests
+```bash
+# Test Telegram messaging (echo bot)
+python3 src/tools/telegram/tests/test_echo.py
+
+# Test Ollama chat
+python3 src/tools/ollama/tests/test_chat.py
+```
+
+### Integration Tests
+```bash
+# Test Telegram-Ollama AI integration
+python3 src/tools/telegram/tests/test_ai_integration.py
+```
+
+For detailed testing information, see [Testing Documentation](docs/TESTING.md)
 
 ## 📖 Documentation
 
+- [Testing Guide](docs/TESTING.md)
 - [Creating Tools](docs/creating_tools.md)
-- [Creating Agents](docs/creating_agents.md)
-- [API Reference](docs/api_reference.md)
-- [Configuration Guide](docs/configuration.md)
+- [Tool Documentation](docs/tools/)
+
+## 🛠 Available Tools
+
+### Telegram Tools
+Located in `src/tools/telegram/`:
+- **TelegramMessageTool**: Send messages and receive updates from Telegram
+- **TelegramHandler**: Handle messages with AI integration
+
+### Ollama Tools
+Located in `src/tools/ollama/`:
+- **OllamaChatTool**: Interact with Ollama's chat models
 
 ## 🛠 Creating a New Tool
 
-1. Create a new file in `src/tools/`:
+1. Create a new directory in `src/tools/` for your tool category
+2. Create your tool class:
 
 ```python
 from src.tools.templates.tool_template import BaseTool, ToolResponse
@@ -43,8 +78,14 @@ class MyTool(BaseTool):
     
     def get_schema(self):
         return {
-            "param1": str,
-            "param2": int
+            "param1": {
+                "type": "string",
+                "description": "Parameter description"
+            },
+            "param2": {
+                "type": "integer",
+                "description": "Parameter description"
+            }
         }
     
     async def execute(self, params):
@@ -53,91 +94,21 @@ class MyTool(BaseTool):
         return ToolResponse(success=True, data=result)
 ```
 
-2. Register your tool:
-
-```python
-from src.core.registry import registry
-registry.register_tool(MyTool)
-```
-
-## 🤖 Creating a New Agent
-
-1. Create a new file in `src/agents/`:
-
-```python
-from src.agents.templates.agent_template import BaseAgent
-
-class MyAgent(BaseAgent):
-    """Description of what your agent does."""
-    
-    async def initialize(self):
-        # Set up your agent
-        return True
-    
-    async def process(self, input_data):
-        # Process input using tools
-        result = await self.use_tool("MyTool", {
-            "param1": "value",
-            "param2": 42
-        })
-        return result
-```
-
-2. Register your agent:
-
-```python
-from src.core.registry import registry
-registry.register_agent(MyAgent)
-```
-
-## 🌐 API Usage
-
-### Execute a Tool
-```bash
-curl -X POST "http://localhost:8000/api/v1/tools/MyTool" \
-     -H "X-API-Key: your-api-key" \
-     -H "Content-Type: application/json" \
-     -d '{
-           "parameters": {
-             "param1": "value",
-             "param2": 42
-           }
-         }'
-```
-
-### Use an Agent
-```bash
-curl -X POST "http://localhost:8000/api/v1/agents/MyAgent" \
-     -H "X-API-Key: your-api-key" \
-     -H "Content-Type: application/json" \
-     -d '{
-           "input_data": {
-             "key": "value"
-           }
-         }'
-```
-
-## 📝 Example Tool
-
-Check out the `TextAnalyzer` tool in `src/tools/text_analyzer.py` for a complete example implementation.
-
-## 🔧 Configuration
-
-The ecosystem is configurable through:
-- Environment variables
-- `.env` file
-- Tool-specific configuration files in `config/`
-
-See [Configuration Guide](docs/configuration.md) for details.
+3. Add tests in a `tests` directory within your tool's directory
+4. Update documentation:
+   - Add tool documentation in `docs/tools/`
+   - Update this README if adding a new category
+   - Add testing information to `docs/TESTING.md`
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+3. Make your changes
+4. Add tests for your changes
+5. Update documentation
+6. Submit a pull request
 
-## 📜 License
+## 📝 License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
