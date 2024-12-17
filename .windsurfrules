@@ -49,3 +49,9 @@ Best Practices:
 6. Add comprehensive test coverage
 
 The template provides a standardized starting point that ensures consistency and maintainability across all tools in the ecosystem.
+
+# ERRORS
+
+1. If an error is discovered, write a short summary of what was discovered and when to a file called "errors_discovered_log.txt"
+2. When the error is fixed, write a short summary of what was fixed and when to a file called "errors_fixed_log.txt". Make sure to include a reference to the corresponding error in the "errors_discovered_log.txt"
+3. If an error is discovred that has previously been fixed, then write a referene to the corresponding error in the "error_repeated_log.txt"
