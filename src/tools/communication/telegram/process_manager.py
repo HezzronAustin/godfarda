@@ -1,10 +1,45 @@
-import psutil
+"""
+Process Manager Module
+
+This module provides process management utilities for the Telegram bot.
+"""
+
 import os
+import psutil
+import functools
 import logging
-import signal
 from typing import List
+import signal
 
 logger = logging.getLogger(__name__)
+
+def ensure_single_instance(func):
+    """Decorator to ensure only one instance of the bot is running.
+    
+    Args:
+        func: Function to wrap
+        
+    Returns:
+        Wrapped function that checks for other running instances
+    """
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        current_process = psutil.Process()
+        current_pid = current_process.pid
+        
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                if (proc.pid != current_pid and 
+                    proc.info['name'] == current_process.name() and 
+                    proc.info['cmdline'] == current_process.cmdline()):
+                    logger.warning(f"Another instance is already running (PID: {proc.pid})")
+                    return
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+        
+        return await func(*args, **kwargs)
+    
+    return wrapper
 
 def get_bot_processes() -> List[psutil.Process]:
     """Find all running Python processes that match our Telegram bot pattern"""
@@ -53,10 +88,3 @@ def kill_existing_bots() -> bool:
             continue
             
     return killed
-
-def ensure_single_instance():
-    """Ensure only one instance of the bot is running"""
-    if kill_existing_bots():
-        logger.info("Killed existing bot processes")
-    else:
-        logger.info("No existing bot processes found")

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class OllamaModel(AIModel):
     """Ollama implementation of the AIModel interface"""
     
-    def __init__(self, model_name: str = "llama2", base_url: str = "http://localhost:11434/api"):
+    def __init__(self, model_name: str = "llama2", base_url: str = "https://ollama.samxr.co.uk/api"):
         self.model_name = model_name
         self.base_url = base_url
         self.session: Optional[aiohttp.ClientSession] = None

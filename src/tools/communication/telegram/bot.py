@@ -1,112 +1,67 @@
-"""Telegram Bot with Ollama Integration.
+"""
+Telegram Bot Module
 
-This script runs a Telegram bot that uses Ollama for AI-powered responses.
+This module initializes and runs the Telegram bot.
 """
 
-import asyncio
-import logging
 import os
-from dotenv import load_dotenv
+import logging
+import asyncio
+from typing import Optional
+from telegram.ext import Application, MessageHandler, filters
 from .handler import TelegramHandler
-from .message import TelegramMessageTool
-
-# Load environment variables
-load_dotenv()
-
-# Get Telegram bot token
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is not set")
 
 # Configure logging
-log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, 'telegram_bot.log')
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-# Clear existing handlers to avoid duplication
-root = logging.getLogger()
-if root.handlers:
-    for handler in root.handlers:
-        root.removeHandler(handler)
-
-# Configure file handler with absolute path
-file_handler = logging.FileHandler(log_file, mode='a', encoding='utf-8')
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-
-# Configure console handler
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-
-# Configure root logger
-root.setLevel(logging.DEBUG)
-root.addHandler(file_handler)
-root.addHandler(console_handler)
-
-# Get logger for this module
 logger = logging.getLogger(__name__)
-logger.info(f"Logging initialized successfully. Log file: {log_file}")
+
+async def setup_bot(token: str, admin_chat_id: Optional[int] = None) -> Application:
+    """Set up the Telegram bot.
+    
+    Args:
+        token: Telegram bot token
+        admin_chat_id: Optional admin chat ID for restricted access
+        
+    Returns:
+        Configured Application instance
+    """
+    # Create application
+    application = Application.builder().token(token).build()
+    
+    # Create handler
+    handler = TelegramHandler(application.bot, admin_chat_id)
+    
+    # Add message handler
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handler.execute))
+    
+    return application
 
 async def main():
-    """Main bot function."""
+    """Main function to run the bot."""
     try:
-        # Initialize handler
-        handler = TelegramHandler()
-        await handler.initialize(TELEGRAM_BOT_TOKEN)
+        # Get bot token from environment
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if not token:
+            raise ValueError("TELEGRAM_BOT_TOKEN environment variable not set")
         
-        # Delete any existing webhook
-        logger.info("Deleting existing webhook...")
-        bot = handler.bot
-        await bot.delete_webhook()
-        logger.info("Webhook deleted successfully")
+        # Get admin chat ID if set
+        admin_chat_id = os.getenv("TELEGRAM_ADMIN_CHAT")
+        if admin_chat_id:
+            admin_chat_id = int(admin_chat_id)
         
-        logger.info(f"Starting Telegram bot with token: {TELEGRAM_BOT_TOKEN[:5]}...")
-        offset = None
+        # Set up and start bot
+        application = await setup_bot(token, admin_chat_id)
+        await application.initialize()
+        await application.start()
+        await application.run_polling()
         
-        # Start receiving updates
-        while True:
-            try:
-                # Get updates from Telegram with offset
-                logger.info(f"Polling for updates with offset {offset}...")
-                updates = await bot.get_updates(offset=offset, timeout=30)
-                logger.info(f"Received {len(updates)} updates")
-                
-                for update in updates:
-                    # Update offset to mark messages as read
-                    offset = update.update_id + 1
-                    
-                    try:
-                        logger.info(f"Processing update: {update.to_dict()}")
-                        result = await handler.process_update(update.to_dict())
-                        logger.info(f"Update processing result: {result}")
-                    except Exception as e:
-                        logger.error(f"Error processing update: {e}", exc_info=True)
-                        # Try to notify user of error
-                        try:
-                            if update.message:
-                                await bot.send_message(
-                                    chat_id=update.message.chat_id,
-                                    text="Sorry, I encountered an error while processing your message. Please try again."
-                                )
-                        except Exception as notify_error:
-                            logger.error(f"Failed to send error notification: {notify_error}")
-                        continue
-                        
-            except Exception as e:
-                logger.error(f"Failed to get updates: {e}", exc_info=True)
-                await asyncio.sleep(1)  # Wait before retrying
-                
     except Exception as e:
-        logger.error(f"Fatal error: {e}", exc_info=True)
+        logger.error(f"Error running bot: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":
-    # Register tools
-    from src.tools import register_tools
-    register_tools()
-    
-    # Check registered tools
-    from src.core.registry import registry
-    logger.info(f"Registered tools: {registry.list_tools()}")
-    
-    # Run the bot
     asyncio.run(main())
