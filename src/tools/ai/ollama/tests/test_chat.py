@@ -2,7 +2,7 @@ import asyncio
 import os
 import logging
 import pytest
-from src.tools.ollama.chat import OllamaChatTool
+from src.tools.ai.ollama.chat import OllamaChatTool
 
 # Get the current directory path
 current_dir = os.path.dirname(os.path.abspath(__file__))

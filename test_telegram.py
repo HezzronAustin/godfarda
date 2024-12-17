@@ -2,7 +2,7 @@ import asyncio
 import os
 import json
 from dotenv import load_dotenv
-from src.tools.telegram.message import TelegramMessageTool
+from src.tools.communication.telegram import TelegramMessageTool
 
 async def main():
     # Load environment variables

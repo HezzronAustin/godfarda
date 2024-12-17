@@ -97,3 +97,186 @@ When adding new tests:
 1. Place them in the appropriate tool's `tests` directory
 2. Update this document with test running instructions
 3. Add test documentation to the tool's README or docstring
+
+## AI Model Testing
+
+### Test Structure
+All AI model tests should be placed in a `tests` directory within the relevant component:
+
+```
+src/
+  tools/
+    ai/
+      tests/
+        test_ai_model.py
+```
+
+### Testing AI Models
+
+Test AI model implementations in `src/tools/ai/tests/`:
+
+```python
+import pytest
+from src.tools.ai import AIModelFactory, Message, MessageRole
+
+@pytest.fixture
+async def ollama_model():
+    model = AIModelFactory.create("ollama", model_name="llama2")
+    await model.initialize()
+    yield model
+    await model.cleanup()
+
+async def test_chat_response(ollama_model):
+    response = await ollama_model.chat([
+        Message(role=MessageRole.USER, content="Hello!")
+    ])
+    assert response.content
+    assert response.model == "llama2"
+    assert response.usage["total_tokens"] > 0
+
+async def test_error_handling(ollama_model):
+    with pytest.raises(Exception):
+        await ollama_model.chat([])  # Empty messages should raise error
+```
+
+## Communications Agent Testing
+
+### Test Structure
+All Communications Agent tests should be placed in a `tests` directory within the relevant component:
+
+```
+src/
+  agents/
+    tests/
+      test_communications_agent.py
+```
+
+### Testing Communications Agent
+
+Test the Communications Agent in `src/agents/tests/`:
+
+```python
+import pytest
+from src.agents import CommunicationsAgent
+from src.tools.ai import Message
+
+@pytest.fixture
+async def agent():
+    agent = CommunicationsAgent(ai_model_name="ollama")
+    await agent.initialize()
+    yield agent
+    await agent.cleanup()
+
+async def test_message_processing(agent):
+    response = await agent.process_message(
+        platform="telegram",
+        user_id="test_user",
+        message="Hello!"
+    )
+    assert response is not None
+    assert isinstance(response, str)
+
+async def test_conversation_history(agent):
+    # Test that conversation history is maintained
+    await agent.process_message("telegram", "user1", "Hello")
+    await agent.process_message("telegram", "user1", "How are you?")
+    
+    history = agent.conversation_history["telegram:user1"]
+    assert len(history) >= 3  # System + 2 user messages + responses
+```
+
+## Running AI Model and Communications Agent Tests
+
+Use pytest to run the test suite:
+
+```bash
+# Run all tests
+pytest
+
+# Run specific test file
+pytest src/agents/tests/test_communications_agent.py
+
+# Run with coverage
+pytest --cov=src
+```
+
+## Test Guidelines
+
+1. **Isolation**: Each test should be independent
+2. **Fixtures**: Use fixtures for setup/teardown
+3. **Mocking**: Mock external services when appropriate
+4. **Coverage**: Aim for high test coverage
+5. **Error Cases**: Test error conditions
+6. **Async**: Use proper async/await patterns
+
+## Mocking Examples
+
+### Mock AI Model
+```python
+class MockAIModel:
+    async def initialize(self):
+        return True
+        
+    async def chat(self, messages, **kwargs):
+        return ModelResponse(
+            content="Mock response",
+            model="mock",
+            usage={"total_tokens": 10},
+            raw_response={}
+        )
+        
+    async def cleanup(self):
+        pass
+```
+
+### Mock Communication Tool
+```python
+class MockCommunicationTool:
+    def send_message(self, recipient, message):
+        return True
+        
+    def receive_message(self, context):
+        return {
+            "user_id": "mock_user",
+            "message": "Mock message"
+        }
+        
+    def setup_channel(self, params):
+        return True
+```
+
+## Integration Testing
+
+For integration tests, create a separate directory:
+
+```python
+# tests/integration/test_agent_with_ai.py
+async def test_agent_with_real_ai():
+    agent = CommunicationsAgent(ai_model_name="ollama")
+    await agent.initialize()
+    
+    try:
+        response = await agent.process_message(
+            "telegram", "test_user", "What's the weather?"
+        )
+        assert response is not None
+    finally:
+        await agent.cleanup()
+```
+
+## Performance Testing
+
+Include performance tests for critical components:
+
+```python
+import time
+
+async def test_agent_response_time():
+    agent = CommunicationsAgent()
+    await agent.initialize()
+    
+    start_time = time.time()
+    await agent.process_message("telegram", "user", "Hello")
+    duration = time.time() - start_time
+    
+    assert duration < 5.0  # Response should be under 5 seconds

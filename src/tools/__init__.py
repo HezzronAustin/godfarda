@@ -4,7 +4,7 @@ This package contains all the tool implementations.
 """
 
 from .text_analyzer import TextAnalyzer
-from .telegram.message import TelegramMessageTool
+from src.tools.communication.telegram.message import TelegramMessageTool
 
 # Make tools available for import
 __all__ = ['TextAnalyzer', 'TelegramMessageTool']

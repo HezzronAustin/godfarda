@@ -2,7 +2,7 @@ import asyncio
 import os
 import logging
 from dotenv import load_dotenv
-from src.tools.telegram.message import TelegramMessageTool
+from src.tools.communication.telegram.message import TelegramMessageTool
 
 # Configure logging
 logging.basicConfig(

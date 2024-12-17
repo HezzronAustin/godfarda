@@ -3,8 +3,8 @@ import os
 import json
 import logging
 from dotenv import load_dotenv
-from src.tools.telegram.message import TelegramMessageTool
-from src.tools.telegram.handler import TelegramHandler
+from src.tools.communication.telegram.message import TelegramMessageTool
+from src.tools.communication.telegram.handler import TelegramHandler
 
 # Configure logging
 logging.basicConfig(

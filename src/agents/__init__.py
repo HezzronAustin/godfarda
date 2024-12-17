@@ -1,9 +1,13 @@
-"""Agents package for the AI Tools Ecosystem."""
+"""
+Agents package initialization.
+Exposes various agent implementations for the AI Tools Ecosystem.
+"""
 
+from .communications_agent import CommunicationsAgent
 from .text_agent import TextAgent
 
 # Make agents available for import
-__all__ = ['TextAgent']
+__all__ = ['CommunicationsAgent', 'TextAgent']
 
 def register_agents():
     """Register all available agents."""

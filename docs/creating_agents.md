@@ -1,8 +1,74 @@
 # Creating Agents
 
-This guide explains how to create and configure AI agents that can use the tools in the ecosystem.
+Agents are high-level components that orchestrate tools and provide specific functionality. This guide explains how to create new agents in the AI Tools Ecosystem.
 
 ## Agent Structure
+
+All agents should be created in the `src/agents` directory and follow these guidelines:
+
+1. Inherit from appropriate base classes when available
+2. Implement clear interfaces for interaction
+3. Include proper error handling and logging
+4. Follow async/await patterns for non-blocking operations
+
+## Available Agents
+
+### Communications Agent
+
+The Communications Agent orchestrates messaging tasks across multiple platforms while leveraging AI capabilities for message processing.
+
+#### Features
+- Platform-agnostic messaging interface
+- Integrated AI processing with conversation history
+- Pluggable communication tools (e.g., Telegram, Slack)
+- Modular AI model system for easy switching between different AI providers
+
+#### Usage Example
+```python
+from src.agents import CommunicationsAgent
+
+# Create agent with specific AI model
+agent = CommunicationsAgent(
+    ai_model_name="ollama",
+    ai_model_params={"model_name": "llama2"}
+)
+
+# Initialize the agent
+await agent.initialize()
+
+# Handle incoming message
+success = await agent.handle_incoming_message(
+    platform="telegram",
+    context={"user_id": "123", "message": "Hello!"}
+)
+
+# Clean up
+await agent.cleanup()
+```
+
+#### Adding New Communication Tools
+1. Implement the `CommunicationTool` interface:
+```python
+class CustomPlatformTool(CommunicationTool):
+    async def send_message(self, recipient: str, message: str) -> bool:
+        # Implementation
+        pass
+
+    async def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        # Implementation
+        pass
+
+    async def setup_channel(self, params: Dict[str, Any]) -> bool:
+        # Implementation
+        pass
+```
+
+2. Register the tool with the agent:
+```python
+agent.register_tool("custom_platform", CustomPlatformTool())
+```
+
+### Text Agent
 
 Agents are classes that inherit from `BaseAgent` and implement two required methods:
 - `initialize()`: Set up the agent and load required tools
@@ -134,25 +200,16 @@ class MyCustomAgent(BaseAgent):
 
 ## Best Practices
 
-1. **Tool Management**
-   - Only use allowed tools
-   - Handle tool failures gracefully
-   - Implement retry logic for unreliable tools
+1. **Modularity**: Design agents to be modular and extensible
+2. **Error Handling**: Include comprehensive error handling
+3. **Documentation**: Provide clear documentation and examples
+4. **Testing**: Include unit tests for all functionality
+5. **Logging**: Add appropriate logging for debugging
+6. **Configuration**: Use configuration files for customizable parameters
 
-2. **State Management**
-   - Keep track of tool results
-   - Handle intermediate states
-   - Clean up resources properly
+## Testing
 
-3. **Error Handling**
-   - Validate input data
-   - Handle tool execution errors
-   - Provide meaningful error messages
-
-4. **Performance**
-   - Use async/await properly
-   - Implement concurrent tool execution when possible
-   - Monitor resource usage
+Refer to [TESTING.md](TESTING.md) for information about testing agents.
 
 ## Example Agent
 
@@ -267,4 +324,3 @@ async def test_text_processing_agent():
     assert result["success"]
     assert "sentiment" in result
     assert "summary" in result
-```

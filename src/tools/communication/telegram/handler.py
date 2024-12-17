@@ -1,9 +1,10 @@
 from typing import Dict, Any
 from .base import TelegramBaseTool
-from ..ollama.chat import OllamaChatTool
+from src.tools.ai.ollama.chat import OllamaChatTool
 from src.tools.templates.tool_template import ToolResponse
 import json
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,61 @@ class TelegramHandler(TelegramBaseTool):
             logger.error(error_msg)
             return ToolResponse(success=False, error=error_msg)
 
+    async def handle_agent_message(self, chat_id: str, user_message: str, agent_name: str) -> ToolResponse:
+        """Handle a message directed to a specific agent.
+        
+        Args:
+            chat_id (str): The chat ID where the message originated
+            user_message (str): The user's message
+            agent_name (str): The name of the agent to communicate with
+            
+        Returns:
+            ToolResponse containing the agent's response
+        """
+        logger.info(f"Processing message '{user_message}' for agent '{agent_name}' from chat {chat_id}")
+        
+        # Create agent-specific system message
+        system_message = f"You are {agent_name}, an AI assistant. Respond in a way that reflects your specific role and expertise."
+        
+        # Get AI response from Ollama
+        ai_response = await self.ollama.execute({
+            "model": "llama3.2",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": system_message
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        })
+        
+        if not ai_response.success:
+            error_msg = f"Failed to get AI response: {ai_response.error}"
+            logger.error(error_msg)
+            return ToolResponse(success=False, error=error_msg)
+        
+        # Extract AI message
+        ai_message = ai_response.data["message"]["content"]
+        logger.info(f"Agent {agent_name} response: {ai_message}")
+        
+        # Send response with typing animation
+        try:
+            await self.bot.send_typing_action(chat_id)
+            await asyncio.sleep(2)  # Simulate typing
+            await self.bot.send_message(chat_id=chat_id, text=ai_message)
+            
+            return ToolResponse(success=True, data={
+                "agent": agent_name,
+                "response": ai_message
+            })
+        except Exception as e:
+            error_msg = f"Failed to send message: {str(e)}"
+            logger.error(error_msg)
+            return ToolResponse(success=False, error=error_msg)
+
     async def handle_update(self, params: Dict[str, Any]) -> ToolResponse:
         """Handle a Telegram update"""
         update = params["update"]
@@ -68,7 +124,22 @@ class TelegramHandler(TelegramBaseTool):
         message = update["message"]
         chat_id = str(message["chat"]["id"])
         user_message = message["text"]
-        logger.info(f"Processing message '{user_message}' from chat {chat_id}")
+        
+        # Check if message is directed to a specific agent
+        if user_message.startswith("@"):
+            # Extract agent name
+            space_index = user_message.find(" ")
+            if space_index == -1:
+                return ToolResponse(success=False, error="No message provided for agent")
+                
+            agent_name = user_message[1:space_index]
+            actual_message = user_message[space_index + 1:]
+            
+            # Handle message for specific agent
+            return await self.handle_agent_message(chat_id, actual_message, agent_name)
+        
+        # Default handling for non-agent messages
+        logger.info(f"Processing general message '{user_message}' from chat {chat_id}")
         
         # Get AI response
         logger.info("Sending to Ollama...")
