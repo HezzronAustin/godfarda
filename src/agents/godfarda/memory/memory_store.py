@@ -43,3 +43,28 @@ class GodFardaMemory(BaseMemoryStore):
             )
             for row in rows
         ]
+
+    def get_relevant_memories(self, query: str, limit: int = 5) -> List[MemoryEntry]:
+        """Get memories relevant to the current query"""
+        with self._get_connection() as conn:
+            # For now, just get recent memories
+            cursor = conn.execute(
+                '''
+                SELECT * FROM memories 
+                WHERE memory_type = 'conversation'
+                ORDER BY timestamp DESC LIMIT ?
+                ''',
+                (limit,)
+            )
+            rows = cursor.fetchall()
+            
+        return [
+            MemoryEntry(
+                content=row[1],
+                timestamp=row[2],
+                memory_type=row[3],
+                metadata=json.loads(row[4]),
+                importance=row[5]
+            )
+            for row in rows
+        ]

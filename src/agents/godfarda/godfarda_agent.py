@@ -147,7 +147,7 @@ class GodFarda(BaseAgent):
             )
             
             # Get relevant memories for context
-            relevant_memories = await self.memory.get_relevant_memories(message)
+            relevant_memories = self.memory.get_relevant_memories(message)
             memory_context = self._format_memories(relevant_memories)
             logger.info(f"Retrieved {len(relevant_memories)} relevant memories")
             
@@ -170,10 +170,12 @@ class GodFarda(BaseAgent):
                     }
                     
                 actual_message = message[space_index + 1:]
-                return await self.delegate_to_agent(agent_name, actual_message, user_info, memory_context)
+                response = await self.delegate_to_agent(agent_name, actual_message, user_info, memory_context)
+                return response
                 
             # No specific agent mentioned, handle as Godfarda
-            return await self.handle_as_godfarda(message, user_info, memory_context)
+            response = await self.handle_as_godfarda(message, user_info, memory_context)
+            return response
             
         except Exception as e:
             logger.error(f"Error processing message: {str(e)}")

@@ -21,17 +21,17 @@ class CommunicationTool(ABC):
     """Abstract base class for communication tools/handlers."""
     
     @abstractmethod
-    def send_message(self, recipient: str, message: str) -> bool:
+    async def send_message(self, recipient: str, message: str) -> bool:
         """Send a message to a recipient."""
         pass
     
     @abstractmethod
-    def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Process a received message."""
         pass
     
     @abstractmethod
-    def setup_channel(self, params: Dict[str, Any]) -> bool:
+    async def setup_channel(self, params: Dict[str, Any]) -> bool:
         """Set up the communication channel."""
         pass
 
@@ -41,20 +41,20 @@ class TelegramToolAdapter(CommunicationTool):
     def __init__(self):
         self.handler = TelegramHandler()
     
-    def send_message(self, recipient: str, message: str) -> bool:
+    async def send_message(self, recipient: str, message: str) -> bool:
         try:
-            self.handler.send_message(recipient, message)
+            await self.handler.send_message(recipient, message)
             return True
         except Exception as e:
             logger.error(f"Error sending Telegram message: {e}")
             return False
     
-    def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
-        return self.handler.handle_message(context)
+    async def receive_message(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        return await self.handler.handle_message(context)
     
-    def setup_channel(self, params: Dict[str, Any]) -> bool:
+    async def setup_channel(self, params: Dict[str, Any]) -> bool:
         try:
-            self.handler.initialize()
+            await self.handler.initialize()
             return True
         except Exception as e:
             logger.error(f"Error setting up Telegram channel: {e}")
@@ -139,7 +139,7 @@ class CommunicationsAgent(BaseAgent):
         self._tools[platform] = tool
         logger.info(f"Registered communication tool for platform: {platform}")
     
-    def process_message(self, platform: str, user_id: str, message: str) -> Optional[str]:
+    async def process_message(self, platform: str, user_id: str, message: str) -> Optional[str]:
         """
         Process a message using AI and return a response.
         
@@ -163,7 +163,7 @@ class CommunicationsAgent(BaseAgent):
             history.append(Message(role=MessageRole.USER, content=message))
             
             # Get AI response
-            response: ModelResponse = self.ai_model.chat(history)
+            response: ModelResponse = await self.ai_model.chat(history)
             if response and response.message:
                 # Add AI response to history
                 history.append(response.message)
@@ -181,7 +181,7 @@ class CommunicationsAgent(BaseAgent):
         
         return None
     
-    def send_message(self, platform: str, recipient: str, message: str) -> bool:
+    async def send_message(self, platform: str, recipient: str, message: str) -> bool:
         """
         Send a message using the specified platform.
         
@@ -197,9 +197,9 @@ class CommunicationsAgent(BaseAgent):
             logger.error(f"No tool registered for platform: {platform}")
             return False
         
-        return self._tools[platform].send_message(recipient, message)
+        return await self._tools[platform].send_message(recipient, message)
     
-    def handle_incoming_message(self, platform: str, context: Dict[str, Any]) -> bool:
+    async def handle_incoming_message(self, platform: str, context: Dict[str, Any]) -> bool:
         """
         Handle an incoming message, process it with AI, and send a response.
         
@@ -216,7 +216,7 @@ class CommunicationsAgent(BaseAgent):
         
         try:
             # Process the incoming message
-            message_data = self._tools[platform].receive_message(context)
+            message_data = await self._tools[platform].receive_message(context)
             if not message_data:
                 return False
             
@@ -228,17 +228,17 @@ class CommunicationsAgent(BaseAgent):
                 return False
             
             # Get AI response
-            response = self.process_message(platform, user_id, message)
+            response = await self.process_message(platform, user_id, message)
             if response:
                 # Send the response back
-                return self.send_message(platform, user_id, response)
+                return await self.send_message(platform, user_id, response)
             
         except Exception as e:
             logger.error(f"Error handling incoming message: {e}")
         
         return False
     
-    def setup_channel(self, platform: str, params: Dict[str, Any]) -> bool:
+    async def setup_channel(self, platform: str, params: Dict[str, Any]) -> bool:
         """
         Set up a communication channel for a specific platform.
         
@@ -253,7 +253,7 @@ class CommunicationsAgent(BaseAgent):
             logger.error(f"No tool registered for platform: {platform}")
             return False
         
-        return self._tools[platform].setup_channel(params)
+        return await self._tools[platform].setup_channel(params)
     
     async def cleanup(self):
         """Clean up resources."""
