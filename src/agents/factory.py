@@ -1,15 +1,12 @@
-from typing import Dict, Any, List, Optional, Union
+from typing import Dict, List, Any, Optional
 from sqlalchemy.orm import Session
-from langchain.schema import BaseMessage, SystemMessage, HumanMessage, AIMessage
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.utils.function_calling import convert_to_openai_function
-import importlib
-import inspect
-import asyncio
+from langchain.schema import BaseMessage, HumanMessage, AIMessage
 import time
-from datetime import datetime
-from .models import Agent, Tool, Function, AgentExecution
-from .base import BaseAgent
+import json
+
+from src.agents.base import BaseAgent
+from src.agents.models import Agent, Tool, Function, AgentExecution
 
 class DynamicAgent(BaseAgent):
     """Dynamically created agent from database definition"""
@@ -205,5 +202,9 @@ class DynamicAgent(BaseAgent):
             execution.status = 'failure'
             execution.error_message = str(e)
             execution.execution_time = time.time() - start_time
+            execution.execution_metadata = {
+                'error_type': type(e).__name__,
+                'error_details': str(e)
+            }
             self.session.commit()
             raise
