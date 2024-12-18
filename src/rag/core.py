@@ -7,14 +7,15 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document as LangChainDocument
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, BaseMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from src.storage.database import Document as DBDocument, User, get_session, Conversation, sessionmaker
 from src.prompts.templates import PromptTemplates
+from src.agents.registry import AgentRegistry
+from src.agents.function_store import FunctionStore
+from src.agents.init_db import init_agent_db
 import os
 import logging
 import json
@@ -53,9 +54,14 @@ class Document(BaseModel):
     embedding: Optional[List[float]] = None
 
 class RAGSystem:
-    def __init__(self, engine: Engine, persist_directory: str = "./chroma_db"):
-        """Initialize the RAG system with conversational capabilities."""
+    def __init__(self, engine: Engine = None):
+        """Initialize the RAG system with agent capabilities."""
         self.engine = engine
+        self.Session = sessionmaker(bind=engine)
+        self.session = self.Session()
+        
+        # Initialize database tables
+        init_agent_db(engine)
         
         # Initialize LLM
         self.llm = Ollama(model="mistral")
@@ -63,13 +69,17 @@ class RAGSystem:
         # Initialize embeddings and vector store
         self.embeddings = HuggingFaceEmbeddings()
         self.vectorstore = Chroma(
-            persist_directory=persist_directory,
+            persist_directory="./chroma_db",
             embedding_function=self.embeddings
         )
         self.retriever = self.vectorstore.as_retriever()
         
-        self.persist_directory = persist_directory
+        self.persist_directory = "./chroma_db"
         self.prompt_templates = PromptTemplates()
+        
+        # Initialize agent components
+        self.function_store = FunctionStore(self.Session())
+        self.agent_registry = AgentRegistry(self.Session(), self.llm)
         
         # Initialize text splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -79,7 +89,7 @@ class RAGSystem:
         
         # Create the conversational chain
         self.qa_prompt = ChatPromptTemplate.from_messages([
-            ("system", ANSWER_SYSTEM_PROMPT),
+            ("system", "You are a helpful AI assistant. Use the provided context and tools to answer questions accurately."),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{question}"),
             ("human", "Context: {context}")
@@ -98,7 +108,7 @@ class RAGSystem:
         )
         
         logging.info("RAG system initialized successfully")
-        
+    
     async def add_document(self, document: Document):
         # Convert to LangChain document format
         langchain_doc = LangChainDocument(
@@ -361,15 +371,27 @@ class RAGSystem:
         
         return context, recent_interactions
 
+    async def _try_agent_response(self, 
+                                query: str, 
+                                chat_history: List[BaseMessage],
+                                user_id: str) -> Optional[str]:
+        """Attempt to get a response from an appropriate agent"""
+        try:
+            # Add the new query to chat history
+            messages = [*chat_history, HumanMessage(content=query)]
+            
+            # Try to get a response from an agent
+            handler = await self.agent_registry.get_handler(messages, user_id)
+            if handler:
+                return await handler.process(messages, user_id)
+            
+            return None
+        except Exception as e:
+            logging.error(f"Error in agent processing: {e}")
+            return None
+    
     async def ask(self, query: str, user_id: str, user_info: Dict[str, str] = None) -> str:
-        """
-        Process a query with enhanced context awareness.
-        
-        Args:
-            query: User's question
-            user_id: Telegram user ID
-            user_info: Optional dictionary with user information
-        """
+        """Process a query with enhanced context awareness and agent capabilities."""
         Session = sessionmaker(bind=self.engine)
         session = Session()
         
@@ -392,11 +414,16 @@ class RAGSystem:
                     AIMessage(content=interaction['response'])
                 ])
             
-            # Use the RAG chain with chat history
-            response = await self.chain.ainvoke({
-                "question": query,
-                "chat_history": chat_history
-            })
+            # First try to get a response from an agent
+            agent_response = await self._try_agent_response(query, chat_history, user_id)
+            if agent_response:
+                response = agent_response
+            else:
+                # Fall back to RAG if no agent can handle it
+                response = await self.chain.ainvoke({
+                    "question": query,
+                    "chat_history": chat_history
+                })
             
             # Store the interaction
             timestamp = datetime.utcnow().isoformat()
@@ -413,6 +440,7 @@ class RAGSystem:
                     "interaction_type": "direct_message",
                     "context_used": True,
                     "history_used": bool(chat_history),
+                    "agent_used": bool(agent_response),
                     "user_info": {
                         "telegram_id": user.telegram_id,
                         "username": user.username,
