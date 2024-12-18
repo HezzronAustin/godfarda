@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import datetime
 from pickle import FALSE
 from typing import List, Dict, Optional
@@ -44,6 +45,7 @@ class ConversationSystem:
                 streaming=False, # Disable streaming for better response handling
                 context_window=4096,
                 timeout=120,
+                base_url=os.getenv('OLLAMA_BASE_URL')
             )
             
             logger.debug("LLM initialized")
