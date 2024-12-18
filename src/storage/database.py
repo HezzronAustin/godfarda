@@ -1,73 +1,83 @@
-from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime, ForeignKey, Float, Text
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, JSON, Text, Boolean, create_engine
+from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.sql import func
 from datetime import datetime
-import json
-import os
+from typing import Optional
 import logging
+from src.storage.base import Base, TimestampMixin
 
-Base = declarative_base()
+class User(Base, TimestampMixin):
+    __tablename__ = 'users'
+    
+    id = Column(Integer, primary_key=True)
+    telegram_id = Column(String(50), unique=True, nullable=False)
+    username = Column(String(100))
+    first_name = Column(String(100))
+    last_name = Column(String(100))
+    last_active = Column(DateTime, default=func.now(), onupdate=func.now())
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    conversations = relationship("Conversation", back_populates="user")
+    
+    def __repr__(self):
+        return f"<User(telegram_id='{self.telegram_id}', username='{self.username}')>"
 
-class Conversation(Base):
+class Conversation(Base, TimestampMixin):
     __tablename__ = 'conversations'
     
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    timestamp = Column(DateTime, default=datetime.utcnow)
-    query = Column(String)
-    context = Column(JSON)
-    response = Column(String)
-    meta_data = Column(JSON)
-    
-    # Relationship
-    user = relationship("User", back_populates="conversations")
-
-class User(Base):
-    __tablename__ = 'users'
-    
-    id = Column(Integer, primary_key=True)
-    telegram_id = Column(String, unique=True)
-    username = Column(String, nullable=True)
-    first_name = Column(String, nullable=True)
-    last_name = Column(String, nullable=True)
-    preferences = Column(JSON, default=dict)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    last_active = Column(DateTime, default=datetime.utcnow)
+    start_time = Column(DateTime, default=func.now())
+    last_message_time = Column(DateTime, default=func.now(), onupdate=func.now())
+    settings = Column(JSON)  # Renamed from metadata
+    is_active = Column(Boolean, default=True)
     
     # Relationships
-    conversations = relationship("Conversation", back_populates="user")
+    user = relationship("User", back_populates="conversations")
+    messages = relationship("Message", back_populates="conversation")
+    
+    def __repr__(self):
+        return f"<Conversation(id={self.id}, user_id={self.user_id})>"
 
-class AgentState(Base):
-    __tablename__ = 'agent_states'
+class Message(Base, TimestampMixin):
+    __tablename__ = 'messages'
     
     id = Column(Integer, primary_key=True)
-    agent_id = Column(String)
-    state = Column(JSON)
-    last_updated = Column(DateTime, default=datetime.utcnow)
+    conversation_id = Column(Integer, ForeignKey('conversations.id'))
+    role = Column(String(20))  # 'user' or 'assistant'
+    content = Column(Text)
+    message_data = Column(JSON)  # Renamed from metadata
     
-class Document(Base):
-    __tablename__ = 'documents'
+    # Relationships
+    conversation = relationship("Conversation", back_populates="messages")
     
-    id = Column(Integer, primary_key=True)
-    external_id = Column(String, unique=True)
-    content = Column(Text)  # Using Text for longer content
-    meta_data = Column(JSON)
-    embedding_id = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    def __repr__(self):
+        return f"<Message(role='{self.role}', content='{self.content[:50]}...')>"
 
-def init_db(db_path: str = "sqlite:///godfarda.db"):
-    """Initialize the database and create all tables."""
-    try:
-        engine = create_engine(db_path)
-        # Drop all tables first to ensure clean slate
-        Base.metadata.drop_all(engine)
-        Base.metadata.create_all(engine)
-        logging.info(f"Database initialized successfully at {db_path}")
-        return engine
-    except Exception as e:
-        logging.error(f"Error initializing database: {e}")
-        raise
+def init_db(database_url: str = "sqlite:///godfarda.db") -> None:
+    """Initialize the database and create all tables"""
+    engine = create_engine(database_url)
+    Base.metadata.create_all(engine)
+    return engine
 
 def get_session(engine):
-    """Create a new database session."""
+    """Create a new database session"""
     Session = sessionmaker(bind=engine)
     return Session()
+
+# Context manager for database sessions
+from contextlib import contextmanager
+
+@contextmanager
+def session_scope(engine):
+    """Provide a transactional scope around a series of operations."""
+    session = get_session(engine)
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise
+    finally:
+        session.close()

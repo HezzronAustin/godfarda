@@ -5,6 +5,6 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 class TimestampMixin:
-    """Mixin to add created_at and updated_at timestamps to models"""
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    """Mixin for adding created_at and updated_at timestamps"""
+    created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)

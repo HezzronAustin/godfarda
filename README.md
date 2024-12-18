@@ -17,8 +17,8 @@ An advanced AI system combining RAG (Retrieval-Augmented Generation), recursive 
 ```
 godfarda/
 ├── src/
-│   ├── rag/           # RAG system implementation
-│   ├── agents/        # Agent system and tools
+│   ├── core/          # An LLM implementation
+│   ├── telegram/      # Agent system and tools
 │   ├── tools/         # Tool definitions and implementations
 │   ├── models/        # Data models and schemas
 │   ├── storage/       # Database and storage implementations

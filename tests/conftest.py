@@ -7,7 +7,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from src.storage.database import Base, init_db
-from src.rag.core import RAGSystem
+from src.ai.core import RAGSystem
 from config.settings import Settings
 import chromadb
 from chromadb.config import Settings as ChromaSettings

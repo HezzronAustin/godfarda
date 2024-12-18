@@ -64,7 +64,7 @@ def setup_logging(log_dir: str = "logs"):
     # Configure module loggers
     loggers = [
         'telegram_bot',
-        'rag.core',
+        'ai.core',
         'agents.factory',
         'agents.registry',
         'agents.function_store'
