@@ -1,57 +1,69 @@
+# Documentation Guidelines
 
-    Documentation Guidelines:
 1. README Updates
    - Update README.md whenever significant changes are made to:
-     - Project structure
-     - Available tools
-     - Setup requirements
-     - Testing procedures
-     - Documentation structure
+     - RAG system components
+     - Agent system features
+     - Prompt templates
+     - Database schema
+     - Integration points
    - Keep the README synchronized with the latest state of the project
 
-2. Package Documentation
-   - Update tool documentation in docs/tools/ when adding or modifying tools
-   - Keep testing documentation (docs/TESTING.md) current with all test suites
-   - Update any affected documentation files when making significant changes
-   - Document all new features, tools, or changes in appropriate documentation files
+2. Component Documentation
+   - Update documentation when modifying:
+     - RAG system (src/rag/)
+     - Agent system (src/agents/)
+     - Prompt templates (src/prompts/)
+     - Storage systems (src/storage/)
+     - Telegram integration (src/telegram/)
 
-# Tool Creation Guidelines
+# Component Creation Guidelines
 
-When creating a new tool in the AI Tools Ecosystem, always follow this template structure:
+When creating a new component in the Godfarda project, follow this structure:
 
-1. Create a new directory in `src/tools/` using the template at `/Users/farda/CascadeProjects/ai-tools-ecosystem/src/tools/templates` as the base.
+1. Create appropriate directory in `src/` following the template:
 
 Required Structure:
-tool_name/ ├── init.py # Package initialization and exports ├── base.py # Base classes and core functionality ├── main.py # Main tool implementation └── tests/ # Test directory ├── init.py # Test package initialization ├── test_base.py # Base functionality tests └── test_main.py # Main functionality tests
-
+component_name/
+├── __init__.py      # Package initialization
+├── core.py         # Core functionality
+├── models.py       # Data models (if needed)
+└── tests/          # Test directory
+    ├── __init__.py
+    └── test_core.py
 
 Implementation Requirements:
-1. Inherit from `BaseToolTemplate` in `base.py`
-2. Implement all required abstract methods:
-   - `initialize()`
-   - `execute()`
-   - `cleanup()`
-3. Include comprehensive docstrings and type hints
+1. Follow existing patterns in similar components
+2. Implement proper async support where needed
+3. Use type hints and comprehensive docstrings
 4. Add unit tests for all functionality
-5. Update the tool's README.md with:
-   - Tool description
-   - Setup instructions
+5. Create a README.md containing:
+   - Component description
    - Usage examples
+   - Integration points
    - Configuration options
    - Testing procedures
 
 Best Practices:
-1. Follow modular design principles
-2. Include proper error handling
-3. Validate configurations
-4. Keep documentation synchronized
-5. Write clean, maintainable code
-6. Add comprehensive test coverage
+1. Use async/await for I/O operations
+2. Implement proper error handling
+3. Follow existing project patterns
+4. Keep documentation current
+5. Ensure type safety
+6. Maintain test coverage
 
-The template provides a standardized starting point that ensures consistency and maintainability across all tools in the ecosystem.
+# Error Tracking
 
-# ERRORS
+1. Error Discovery
+   - Log newly discovered errors to `errors_discovered_log.txt`
+   - Include timestamp, component, and error description
 
-1. If an error is discovered, write a short summary of what was discovered and when to a file called "errors_discovered_log.txt"
-2. When the error is fixed, write a short summary of what was fixed and when to a file called "errors_fixed_log.txt". Make sure to include a reference to the corresponding error in the "errors_discovered_log.txt"
-3. If an error is discovred that has previously been fixed, then write a referene to the corresponding error in the "error_repeated_log.txt"
+2. Error Resolution
+   - Document fixes in `errors_fixed_log.txt`
+   - Reference the original error from `errors_discovered_log.txt`
+   - Include fix timestamp and verification steps
+
+3. Error Recurrence
+   - Track repeated errors in `error_repeated_log.txt`
+   - Reference both discovery and previous fix entries
+   - Analyze patterns to prevent future occurrences
