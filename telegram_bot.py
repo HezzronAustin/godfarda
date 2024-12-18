@@ -1,48 +1,29 @@
 import logging
 import asyncio
-from telethon import TelegramClient, events
+from sqlalchemy.orm import Session
 from src.rag.core import RAGSystem
 from src.storage.database import init_db
 from src.utils.logging_config import setup_logging
-from dotenv import load_dotenv
-import os
+from src.telegram.client import TelegramBot
 import time
 
 # Configure logging
 setup_logging()
 logger = logging.getLogger('telegram_bot')
 
-# Load environment variables
-load_dotenv()
-logger.debug("Loaded environment variables")
-
-# Get Telegram credentials from environment variables
-API_ID = os.getenv('TELEGRAM_API_ID')
-API_HASH = os.getenv('TELEGRAM_API_HASH')
-BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-
-if not all([API_ID, API_HASH, BOT_TOKEN]):
-    logger.error("Missing required Telegram credentials in environment variables")
-    raise ValueError("Missing required Telegram credentials")
-
-logger.info("Initialized Telegram credentials")
-
 # Initialize database and RAG system
 try:
     logger.info("Initializing database and RAG system")
     engine = init_db()
+    session = Session(engine)
     rag = RAGSystem(engine=engine)
     logger.info("Successfully initialized database and RAG system")
 except Exception as e:
     logger.error(f"Failed to initialize database or RAG system: {e}", exc_info=True)
     raise
 
-# Initialize Telegram client
-client = TelegramClient('bot', API_ID, API_HASH)
-logger.info("Created Telegram client instance")
-
-@client.on(events.NewMessage)
 async def handle_message(event):
+    """Handle regular messages and /ask commands"""
     start_time = time.time()
     user_id = str(event.sender_id)
     
@@ -54,6 +35,12 @@ async def handle_message(event):
         message = event.message.text.strip()
         logger.info(f"Received message from user {user_id}: {message[:50]}...")
         
+        # Check if user is in an active workflow
+        from src.telegram.agent_manager import AgentManager
+        if AgentManager.is_user_in_workflow(int(user_id)):
+            logger.debug(f"User {user_id} is in a workflow, skipping RAG processing")
+            return
+        
         # If it's not a command, treat it as a regular question
         if not message.startswith('/'):
             logger.debug(f"Processing regular message from user {user_id}")
@@ -62,7 +49,7 @@ async def handle_message(event):
             logger.info(f"Sent response to user {user_id}, processing time: {time.time() - start_time:.2f}s")
             return
         
-        # Handle specific commands
+        # Handle /ask command
         if message.startswith('/ask '):
             query = message[5:].strip()  # Remove '/ask '
             if not query:
@@ -74,9 +61,6 @@ async def handle_message(event):
             response = await rag.ask(query, user_id)
             await event.respond(response)
             logger.info(f"Sent response to /ask command for user {user_id}, processing time: {time.time() - start_time:.2f}s")
-        else:
-            logger.debug(f"User {user_id} sent unknown command: {message}")
-            await event.respond("I understand the following commands:\n/ask [your question]")
     
     except Exception as e:
         logger.error(f"Error processing message from user {user_id}: {str(e)}", exc_info=True)
@@ -89,18 +73,27 @@ async def handle_message(event):
 
 async def main():
     try:
-        logger.info("Starting Telegram client")
-        await client.start(bot_token=BOT_TOKEN)
+        # Initialize bot with database session
+        bot = TelegramBot(session=session)
+        
+        # Set the message handler for non-command messages
+        bot.set_message_handler(handle_message)
+        
+        # Start the bot
+        logger.info("Starting Telegram bot")
+        await bot.start()
         logger.info("Bot started successfully")
         
-        # Run the client until disconnected
+        # Run until disconnected
         logger.info("Bot is now running")
-        await client.run_until_disconnected()
+        await bot.client.run_until_disconnected()
         logger.info("Bot has been disconnected")
         
     except Exception as e:
-        logger.error(f"Critical error in main function: {str(e)}", exc_info=True)
+        logger.error(f"Error in main: {str(e)}", exc_info=True)
         raise
+    finally:
+        await bot.stop()
 
 if __name__ == "__main__":
     try:
