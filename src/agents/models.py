@@ -1,11 +1,9 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, JSON, Float, DateTime, Table, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from sqlalchemy.ext.declarative import declarative_base
+from src.storage.base import Base, TimestampMixin
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-
-Base = declarative_base()
 
 # Association tables
 agent_tool_association = Table(
@@ -22,11 +20,6 @@ agent_function_association = Table(
     Column('function_id', Integer, ForeignKey('functions.id'))
 )
 
-class TimestampMixin:
-    """Mixin for created_at and updated_at timestamps"""
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
 class Agent(Base, TimestampMixin):
     """Agent definition stored in database"""
     __tablename__ = 'agents'
@@ -37,18 +30,20 @@ class Agent(Base, TimestampMixin):
     system_prompt = Column(String, nullable=False)
     input_schema = Column(JSON)  # JSON Schema for expected input
     output_schema = Column(JSON)  # JSON Schema for expected output
-    config_data = Column(JSON)  # Renamed from metadata to avoid conflicts
-    tools = relationship("Tool", secondary=agent_tool_association)
-    functions = relationship("Function", secondary=agent_function_association)
-    fallback_agent_id = Column(Integer, ForeignKey('agents.id'), nullable=True)
+    config_data = Column(JSON)  # Configuration data
     is_active = Column(Boolean, default=True)
-    max_chain_depth = Column(Integer, default=3)  # Maximum recursion depth
-    chain_strategy = Column(String, default='sequential')  # sequential, parallel, etc.
+    max_chain_depth = Column(Integer, default=3)
+    chain_strategy = Column(String, default='sequential')
     temperature = Column(Float, default=0.7)
     top_p = Column(Float, default=1.0)
     presence_penalty = Column(Float, default=0.0)
     frequency_penalty = Column(Float, default=0.0)
+    fallback_agent_id = Column(Integer, ForeignKey('agents.id'), nullable=True)
+    
+    tools = relationship("Tool", secondary=agent_tool_association, back_populates="agent")
+    functions = relationship("Function", secondary=agent_function_association, back_populates="agent")
     executions = relationship("AgentExecution", back_populates="agent")
+    fallback_agent = relationship("Agent", remote_side=[id])
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -78,8 +73,9 @@ class Tool(Base, TimestampMixin):
     input_schema = Column(JSON)
     output_schema = Column(JSON)
     is_async = Column(Boolean, default=True)
-    config_data = Column(JSON)  # Configuration and parameters
+    config_data = Column(JSON)  # Tool configuration
     agent_id = Column(Integer, ForeignKey('agents.id'))
+    
     agent = relationship("Agent", back_populates="tools")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -105,8 +101,9 @@ class Function(Base, TimestampMixin):
     input_schema = Column(JSON)
     output_schema = Column(JSON)
     is_async = Column(Boolean, default=True)
-    config_data = Column(JSON)  # Function parameters and configuration
+    config_data = Column(JSON)  # Function configuration
     agent_id = Column(Integer, ForeignKey('agents.id'))
+    
     agent = relationship("Agent", back_populates="functions")
 
     def to_dict(self) -> Dict[str, Any]:
@@ -135,4 +132,5 @@ class AgentExecution(Base, TimestampMixin):
     status = Column(String)  # success, failure, in_progress
     error_message = Column(String, nullable=True)
     execution_metadata = Column(JSON)  # Additional execution details
+    
     agent = relationship("Agent", back_populates="executions")

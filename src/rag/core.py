@@ -14,8 +14,8 @@ from langchain_core.runnables import RunnablePassthrough
 from src.storage.database import Document as DBDocument, User, get_session, Conversation, sessionmaker
 from src.prompts.templates import PromptTemplates
 from src.agents.registry import AgentRegistry
-from src.agents.factory import DynamicAgent
 from src.agents.function_store import FunctionStore
+from src.agents.init_db import init_agent_db
 import os
 import logging
 import json
@@ -50,6 +50,9 @@ class RAGSystem:
         self.engine = engine
         self.Session = sessionmaker(bind=engine)
         self.session = self.Session()
+        
+        # Initialize database tables
+        init_agent_db(engine)
         
         # Initialize LLM
         self.llm = Ollama(model="mistral")
