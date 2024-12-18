@@ -1,217 +1,237 @@
-# Data-Driven Agent System
+# Agent System
 
-A flexible, data-driven agent system that allows dynamic creation and chaining of AI agents with tools and functions.
+A flexible, data-driven agent system that enables dynamic creation and chaining of AI agents with tools and functions.
 
-## Architecture Overview
+## Core Components
 
-The system is built on three core components:
-
-1. **Database Models** (`models.py`)
-   - `Agent`: Stores agent definitions, prompts, and configurations
-   - `Tool`: Defines external tools and their implementations
-   - `Function`: Stores custom functions as Python code
-   - `AgentExecution`: Tracks execution history and agent chaining
+1. **Base Agent** (`base.py`)
+   - Abstract base class for all agents
+   - Message processing interface
+   - Chat history formatting
+   - Response standardization
 
 2. **Dynamic Agent Factory** (`factory.py`)
    - Creates agents from database definitions
-   - Manages tool and function loading
-   - Handles agent chaining and fallback logic
-   - Tracks execution state and history
+   - Comprehensive logging and monitoring
+   - Tool and function loading
+   - Execution tracking with performance metrics
+   - Error handling with detailed logging
 
-3. **Agent Registry** (`registry.py`)
-   - Manages agent registration and lifecycle
-   - Handles tool and function registration
-   - Provides caching for active agents
-   - Routes messages to appropriate agents
+3. **Function Store** (`function_store.py`)
+   - Secure function storage and execution
+   - Code validation and sandboxing
+   - Version control and hashing
+   - Memory and timeout limits
+   - Allowed imports management
 
-## Key Features
+4. **Database Models** (`models.py`)
+   - Agent definitions and configurations
+   - Tool and function specifications
+   - Execution history tracking
+   - Agent relationships and chaining
+   - JSON schema validation
 
-### Data-Driven Design
-- Agents are defined in the database, not code
-- Easy to create, modify, and version agents
-- Dynamic loading of tools and functions
-- Schema validation for inputs and outputs
+5. **Agent Registry** (`registry.py`)
+   - Agent lifecycle management
+   - Message routing and handling
+   - Caching for active agents
+   - Performance monitoring
+   - Error tracking and logging
 
-### Controlled Agent Chaining
-- `max_chain_depth` parameter prevents infinite recursion
-- Fallback agent system for handling edge cases
-- Execution tracking for monitoring chain depth
-- Chain strategy configuration (sequential/parallel)
+6. **Minion System** (`minion.py`)
+   - Task delegation and processing
+   - Capability-based routing
+   - Tool execution management
+   - State tracking
+   - Error handling
 
-### Schema Validation
-- Input/output validation using JSON schemas
-- Ensures data consistency across agent chains
-- Prevents invalid data propagation
-- Helps maintain system reliability
+7. **Database Initialization** (`init_db.py`)
+   - Schema creation and updates
+   - Default agent setup
+   - Configuration management
+   - Migration handling
 
-### Execution Tracking
-- Complete history of agent executions
-- Parent-child relationship tracking
-- Performance metrics and timing
-- Error tracking and debugging support
+## Features
+
+### Secure Function Execution
+- Code validation and sandboxing
+- Memory and timeout limits
+- Restricted imports and builtins
+- Version control and hashing
+- Execution monitoring
+
+### Comprehensive Logging
+- Detailed operation logging
+- Performance metrics tracking
+- Error tracking with context
+- Execution history
+- State preservation
+
+### Dynamic Agent Creation
+- Database-driven definitions
+- Runtime agent creation
+- Tool and function loading
+- Configuration management
+- Schema validation
+
+### Task Management
+- Capability-based routing
+- Task delegation
+- State tracking
+- Error handling
+- Performance monitoring
+
+### Database Integration
+- SQLAlchemy models
+- JSON schema validation
+- Relationship management
+- Execution tracking
+- Configuration storage
 
 ## Usage Examples
 
-### 1. Registering a Tool
+### Creating an Agent
 
 ```python
-registry.register_tool(
-    name="search_docs",
-    description="Search documentation",
-    function_name="src.tools.search.search_docs",
-    input_schema={
-        "type": "object",
-        "properties": {
-            "query": {"type": "string"}
-        }
-    },
-    output_schema={
-        "type": "array",
-        "items": {"type": "string"}
-    }
+from src.agents.registry import AgentRegistry
+from src.agents.models import Agent
+
+# Initialize registry
+registry = AgentRegistry(session)
+
+# Create agent definition
+agent_def = Agent(
+    name="SearchAgent",
+    description="Handles search queries",
+    system_prompt="You are a search assistant...",
+    input_schema={"type": "object", "properties": {...}},
+    output_schema={"type": "object", "properties": {...}},
+    config_data={"capabilities": ["search", "filter"]},
+    max_chain_depth=3
 )
+
+# Register agent
+agent = registry.register_agent(agent_def)
 ```
 
-### 2. Creating an Agent
+### Processing Messages
 
 ```python
-registry.register_agent(
-    name="DocSearchAgent",
-    description="Helps search documentation",
-    system_prompt="You help users find information in documentation...",
-    input_schema={
-        "type": "object",
-        "properties": {
-            "question": {"type": "string"}
-        }
-    },
-    output_schema={
-        "type": "object",
-        "properties": {
-            "answer": {"type": "string"}
-        }
-    },
-    tools=["search_docs"],
-    max_chain_depth=2
-)
-```
-
-### 3. Using the Agent System
-
-```python
+# Process messages with automatic routing
 response = await registry.process(
-    "How do I use the search function?",
+    messages=[HumanMessage(content="Search for...")],
     conversation_id="123"
 )
+
+# Direct agent usage
+agent = registry.get_agent("SearchAgent")
+result = await agent.process_message("Search for...")
+```
+
+### Function Management
+
+```python
+from src.agents.function_store import FunctionStore
+
+# Initialize store
+store = FunctionStore(session)
+
+# Store function
+await store.store_function(
+    name="search_docs",
+    code="""async def search_docs(query: str) -> List[str]:
+        # Implementation
+        return results
+    """,
+    description="Search documentation",
+    input_schema={"type": "object", "properties": {...}},
+    output_schema={"type": "object", "properties": {...}},
+    is_async=True
+)
+
+# Execute function
+result = await store.execute_function("search_docs", {"query": "..."})
+```
+
+## Configuration
+
+### Agent Configuration
+```python
+{
+    "type": "agent",
+    "capabilities": ["search", "filter"],
+    "max_chain_depth": 3,
+    "chain_strategy": "sequential",
+    "temperature": 0.7,
+    "top_p": 1.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0
+}
+```
+
+### Function Configuration
+```python
+{
+    "version": "1.0",
+    "is_async": true,
+    "requires_context": false,
+    "memory_limit": 512,  # MB
+    "timeout": 30,        # seconds
+    "safe_mode": true,
+    "allowed_imports": [
+        "json", "datetime", "math", "re",
+        "collections", "itertools", "functools"
+    ]
+}
 ```
 
 ## Best Practices
 
-### Agent Design
-1. **Clear Responsibility**
-   - Each agent should have a single, well-defined purpose
-   - Use clear input/output schemas
-   - Include comprehensive descriptions
+### Security
+1. Always validate function code
+2. Use memory and timeout limits
+3. Restrict imports and builtins
+4. Implement proper error handling
+5. Log security-related events
 
-2. **Chain Control**
-   - Set appropriate `max_chain_depth` for each agent
-   - Use `fallback_agent_id` judiciously
-   - Monitor chain execution metrics
+### Performance
+1. Use agent caching appropriately
+2. Monitor execution times
+3. Track resource usage
+4. Optimize chain depth
+5. Use appropriate timeouts
 
-3. **Schema Design**
-   - Define strict input/output schemas
-   - Include all required fields
-   - Document schema expectations
+### Development
+1. Follow type hints
+2. Add comprehensive logging
+3. Include error handling
+4. Write unit tests
+5. Document changes
 
-### Performance Optimization
-1. **Caching**
-   - Use the registry's caching mechanism
-   - Clear cache when appropriate
-   - Monitor cache hit rates
+### Monitoring
+1. Track execution metrics
+2. Monitor error patterns
+3. Log performance data
+4. Analyze chain operations
+5. Review security events
 
-2. **Chain Optimization**
-   - Minimize chain depth where possible
-   - Use parallel execution when appropriate
-   - Monitor execution times
+## Error Handling
 
-## Potential Improvements
+### Execution Errors
+- Log full error context
+- Track error patterns
+- Implement fallbacks
+- Preserve error state
+- Notify monitoring
 
-### 1. Enhanced Chain Control
-- Implement chain strategies (e.g., parallel, waterfall)
-- Add chain abort conditions
-- Support conditional chaining logic
-- Add chain visualization tools
+### Chain Errors
+- Handle depth limits
+- Manage timeouts
+- Track chain state
+- Log chain operations
+- Implement recovery
 
-### 2. Advanced Monitoring
-- Real-time execution monitoring
-- Performance dashboards
-- Chain optimization suggestions
-- Anomaly detection
-
-### 3. Schema Evolution
-- Version control for schemas
-- Schema migration tools
-- Backward compatibility checks
-- Schema validation caching
-
-### 4. Dynamic Loading
-- Hot-reload capability for agents
-- Dynamic tool/function updates
-- A/B testing support
-- Canary deployments
-
-### 5. Security Enhancements
-- Role-based access control
-- Agent isolation
-- Rate limiting
-- Audit logging
-
-### 6. Testing Framework
-- Agent simulation tools
-- Chain testing utilities
-- Performance benchmarking
-- Regression testing
-
-## Leveraging the Architecture
-
-### 1. Custom Agent Types
-Create specialized agents for different tasks:
-- Data processing agents
-- API integration agents
-- Workflow automation agents
-- Analysis and reporting agents
-
-### 2. Agent Composition
-Build complex workflows through agent composition:
-- Sequential processing chains
-- Parallel processing groups
-- Conditional execution paths
-- Error handling chains
-
-### 3. Dynamic Updates
-Leverage the data-driven nature for:
-- A/B testing different prompts
-- Gradual rollout of changes
-- Quick fixes and updates
-- Performance optimization
-
-### 4. Integration Points
-Extend the system through:
-- Custom tool implementations
-- External API integrations
-- Database connectors
-- Service integrations
-
-## Contributing
-
-When adding new features:
-1. Follow the existing schema patterns
-2. Add appropriate tests
-3. Update documentation
-4. Consider backward compatibility
-5. Add migration scripts if needed
-
-## Future Roadmap
+## Future Improvements
 
 1. **Enhanced Monitoring**
    - Real-time dashboards
@@ -219,14 +239,20 @@ When adding new features:
    - Chain visualization
    - Anomaly detection
 
-2. **Advanced Chain Control**
-   - Complex chain strategies
-   - Dynamic chain optimization
-   - Chain templates
-   - Visual chain builder
+2. **Security Enhancements**
+   - Role-based access
+   - Enhanced sandboxing
+   - Audit logging
+   - Threat detection
 
-3. **Integration Expansion**
-   - More tool types
-   - External service connectors
-   - API integration templates
-   - Custom function builders
+3. **Performance Optimization**
+   - Caching improvements
+   - Chain optimization
+   - Resource management
+   - Query optimization
+
+4. **Development Tools**
+   - Testing framework
+   - Development console
+   - Debugging tools
+   - Documentation generator

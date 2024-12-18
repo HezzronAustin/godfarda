@@ -34,6 +34,22 @@ class Agent(Base, TimestampMixin):
     is_active = Column(Boolean, default=True)
     max_chain_depth = Column(Integer, default=3)
     chain_strategy = Column(String, default='sequential')
+    
+    # LLM Configuration
+    llm_provider = Column(String, default='ollama')  # ollama, openai, anthropic, etc.
+    llm_model = Column(String, default='mistral')    # model name
+    llm_config = Column(JSON, default={              # Provider-specific configuration
+        'temperature': 0.7,
+        'top_p': 1.0,
+        'presence_penalty': 0.0,
+        'frequency_penalty': 0.0,
+        'repeat_penalty': 1.1,
+        'context_window': 4096,
+        'timeout': 120,
+        'streaming': True,
+        'format': None  # Can be 'json' for structured output
+    })
+    
     temperature = Column(Float, default=0.7)
     top_p = Column(Float, default=1.0)
     presence_penalty = Column(Float, default=0.0)
@@ -56,6 +72,15 @@ class Agent(Base, TimestampMixin):
             'tools': [tool.to_dict() for tool in self.tools],
             'functions': [func.to_dict() for func in self.functions],
             'config_data': self.config_data,
+            'llm_config': {
+                'provider': self.llm_provider,
+                'model': self.llm_model,
+                'config': self.llm_config,
+                'temperature': self.temperature,
+                'top_p': self.top_p,
+                'presence_penalty': self.presence_penalty,
+                'frequency_penalty': self.frequency_penalty
+            },
             'chain_config': {
                 'max_depth': self.max_chain_depth,
                 'strategy': self.chain_strategy

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel
-from langchain.llms import Ollama
+from langchain_community.chat_models.ollama import ChatOllama
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -73,9 +73,18 @@ class RAGSystem:
             init_agent_db(engine)
             logger.debug("Agent database tables initialized")
             
-            # Initialize LLM
-            logger.debug("Initializing LLM")
-            self.llm = Ollama(model="mistral")
+            # Initialize LLM with enhanced features
+            logger.debug("Initializing LLM with enhanced features")
+            self.llm = ChatOllama(
+                model="mistral",
+                temperature=0.7,
+                top_p=0.9,
+                repeat_penalty=1.1,
+                streaming=True,
+                format="json",
+                context_window=4096,
+                timeout=120
+            )
             
             # Initialize embeddings and vector store
             logger.debug("Initializing embeddings and vector store")
@@ -100,19 +109,19 @@ class RAGSystem:
                 chunk_overlap=200
             )
             
-            # Create the conversational chain
-            logger.debug("Setting up conversation chain")
+            # Create the conversational chain with enhanced prompts
+            logger.debug("Setting up conversation chain with enhanced prompts")
             self.qa_prompt = ChatPromptTemplate.from_messages([
-                ("system", "You are a helpful AI assistant. Use the provided context and tools to answer questions accurately."),
+                ("system", ANSWER_SYSTEM_PROMPT),
                 MessagesPlaceholder(variable_name="chat_history"),
                 ("human", "{question}"),
                 ("human", "Context: {context}")
             ])
             
-            # Create retrieval chain
+            # Create retrieval chain with optimized context
             self.chain = (
                 {
-                    "context": lambda x: self.retriever.get_relevant_documents(x["question"]),
+                    "context": self._get_optimized_context,
                     "question": lambda x: x["question"],
                     "chat_history": lambda x: x.get("chat_history", [])
                 }
@@ -254,6 +263,26 @@ class RAGSystem:
         except Exception as e:
             logger.error(f"Error processing query for user {user_id}: {str(e)}", exc_info=True)
             raise
+        
+    async def _get_optimized_context(self, inputs: Dict[str, Any]) -> str:
+        """Get and optimize context for the query"""
+        try:
+            # Get relevant documents
+            docs = self.retriever.get_relevant_documents(inputs["question"])
+            
+            # Combine document content
+            context = "\n\n".join(doc.page_content for doc in docs)
+            
+            # Optimize for context window
+            tokens = self.llm.get_num_tokens(context)
+            if tokens > 3000:  # Leave room for prompt and response
+                context = self.text_splitter.split_text(context)[0]
+                
+            return context
+            
+        except Exception as e:
+            logger.error(f"Error optimizing context: {str(e)}", exc_info=True)
+            return ""
         
     def _format_conversation_for_indexing(self, user_id: str, query: str, response: str) -> Document:
         """Format a conversation turn for indexing in the RAG system."""

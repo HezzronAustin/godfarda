@@ -2,18 +2,57 @@ from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
 from src.agents.models import Agent, Tool, Function, AgentExecution
 from src.agents.factory import DynamicAgent
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models import ChatOpenAI, ChatOllama, ChatAnthropic
 from langchain.schema import BaseMessage, HumanMessage, AIMessage
 import logging
 
 logger = logging.getLogger('agents.registry')
 
 class AgentRegistry:
-    def __init__(self, session: Session, llm: Optional[Any] = None):
+    def __init__(self, session: Session, default_llm: Optional[Any] = None):
         logger.info("Initializing AgentRegistry")
         self.session = session
-        self.llm = llm or ChatOpenAI()
+        self.default_llm = default_llm
         self._agents: Dict[str, DynamicAgent] = {}
+        
+    def _create_llm(self, agent_def: Agent) -> Any:
+        """Create LLM instance based on agent configuration"""
+        provider = agent_def.llm_provider.lower()
+        config = agent_def.llm_config or {}
+        
+        try:
+            if provider == 'ollama':
+                return ChatOllama(
+                    model=agent_def.llm_model,
+                    temperature=agent_def.temperature,
+                    top_p=agent_def.top_p,
+                    **config
+                )
+            elif provider == 'openai':
+                return ChatOpenAI(
+                    model=agent_def.llm_model,
+                    temperature=agent_def.temperature,
+                    top_p=agent_def.top_p,
+                    presence_penalty=agent_def.presence_penalty,
+                    frequency_penalty=agent_def.frequency_penalty,
+                    **config
+                )
+            elif provider == 'anthropic':
+                return ChatAnthropic(
+                    model=agent_def.llm_model,
+                    temperature=agent_def.temperature,
+                    **config
+                )
+            else:
+                logger.warning(f"Unknown LLM provider: {provider}, using default LLM")
+                return self.default_llm
+                
+        except Exception as e:
+            logger.error(f"Error creating LLM for provider {provider}: {str(e)}", exc_info=True)
+            if self.default_llm:
+                logger.info("Falling back to default LLM")
+                return self.default_llm
+            raise
         
     def register_agent(self, agent_def: Agent) -> DynamicAgent:
         """Register a new agent from its database definition"""
@@ -24,9 +63,12 @@ class AgentRegistry:
             return self._agents[agent_def.name]
             
         try:
+            # Create LLM instance for this agent
+            llm = self._create_llm(agent_def)
+            
             agent = DynamicAgent(
                 agent_def=agent_def,
-                llm=self.llm,
+                llm=llm,
                 session=self.session
             )
             self._agents[agent_def.name] = agent

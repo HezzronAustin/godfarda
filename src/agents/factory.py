@@ -67,26 +67,63 @@ class DynamicAgent(BaseAgent):
             )
             logger.debug(f"Formatted prompt for agent {self.name}")
             
-            # Get response from LLM
+            # Get response from LLM with streaming if supported
             logger.debug(f"Sending prompt to LLM for agent {self.name}")
-            response = await self.llm.agenerate([prompt_value])
-            result = response.generations[0][0].text
-            logger.debug(f"Received response from LLM for agent {self.name}")
+            response_text = ""
             
+            if hasattr(self.llm, 'astream'):
+                async for chunk in self.llm.astream([prompt_value]):
+                    response_text += chunk.content
+            else:
+                # Fallback for non-streaming LLMs
+                response = await self.llm.agenerate([prompt_value])
+                response_text = response.generations[0][0].text
+                
+            # Parse response if JSON format is required
+            requires_json = (
+                self.agent_def.llm_config.get('format') == 'json' or 
+                self.agent_def.config_data.get("requires_structured_output")
+            )
+            
+            if requires_json:
+                try:
+                    result = json.loads(response_text)
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse JSON response for agent {self.name}")
+                    result = {"response": response_text}
+            else:
+                result = {"response": response_text}
+                
             # Update execution record with success
             execution_time = time.time() - start_time
             execution.status = 'success'
-            execution.output_data = {'response': result}
+            execution.output_data = result
             execution.execution_time = execution_time
+            
+            # Get token counts if method available
+            if hasattr(self.llm, 'get_num_tokens'):
+                token_metrics = {
+                    'prompt_tokens': self.llm.get_num_tokens(str(prompt_value)),
+                    'completion_tokens': self.llm.get_num_tokens(response_text),
+                    'total_tokens': self.llm.get_num_tokens(str(prompt_value)) + self.llm.get_num_tokens(response_text)
+                }
+            else:
+                # Fallback metrics based on string length
+                token_metrics = {
+                    'prompt_chars': len(str(prompt_value)),
+                    'completion_chars': len(response_text),
+                    'total_chars': len(str(prompt_value)) + len(response_text)
+                }
+                
             execution.execution_metadata = {
-                'prompt_tokens': len(str(prompt_value)),
-                'completion_tokens': len(result),
-                'total_tokens': len(str(prompt_value)) + len(result)
+                **token_metrics,
+                'llm_provider': self.agent_def.llm_provider,
+                'llm_model': self.agent_def.llm_model
             }
             self.session.commit()
             
             logger.info(f"Successfully processed message with agent {self.name} in {execution_time:.2f}s")
-            return {'response': result}
+            return result
             
         except Exception as e:
             execution_time = time.time() - start_time
@@ -99,42 +136,18 @@ class DynamicAgent(BaseAgent):
                 execution.execution_time = execution_time
                 execution.execution_metadata = {
                     'error_type': type(e).__name__,
-                    'error_details': str(e)
+                    'error_details': str(e),
+                    'llm_provider': self.agent_def.llm_provider,
+                    'llm_model': self.agent_def.llm_model
                 }
                 self.session.commit()
+            
             raise
             
-    def _load_tools(self) -> List[Dict[str, Any]]:
-        """Load tools associated with this agent"""
-        logger.debug(f"Loading tools for agent {self.name}")
-        tools = []
-        for tool in self.agent_def.tools:
-            try:
-                tools.append({
-                    'name': tool.name,
-                    'description': tool.description,
-                    'config': tool.config_data
-                })
-                logger.debug(f"Loaded tool {tool.name} for agent {self.name}")
-            except Exception as e:
-                logger.error(f"Error loading tool {tool.name} for agent {self.name}: {str(e)}")
-                raise
-        return tools
+    def _load_tools(self) -> Dict[str, Tool]:
+        """Load tools for this agent"""
+        return {tool.name: tool for tool in self.agent_def.tools}
         
-    def _load_functions(self) -> List[Dict[str, Any]]:
-        """Load functions associated with this agent"""
-        logger.debug(f"Loading functions for agent {self.name}")
-        functions = []
-        for function in self.agent_def.functions:
-            try:
-                functions.append({
-                    'name': function.name,
-                    'description': function.description,
-                    'code': function.code,
-                    'config': function.config_data
-                })
-                logger.debug(f"Loaded function {function.name} for agent {self.name}")
-            except Exception as e:
-                logger.error(f"Error loading function {function.name} for agent {self.name}: {str(e)}")
-                raise
-        return functions
+    def _load_functions(self) -> Dict[str, Function]:
+        """Load functions for this agent"""
+        return {func.name: func for func in self.agent_def.functions}
