@@ -7,12 +7,29 @@ on:
     branches: [ "main" ]
 
 jobs:
-
-  build:
-
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag godfarda:$(date +%s)
+      # Check out the repository to get the Dockerfile and source code
+      - uses: actions/checkout@v4
+
+      # Log in to Docker registry (e.g. Docker Hub)
+      # Make sure you've created secrets named DOCKER_USERNAME and DOCKER_PASSWORD
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      
+      # Build the Docker image, tagging it with the current commit SHA and 'latest'
+      - name: Build the Docker image
+        run: |
+          docker build \
+            --file Dockerfile \
+            --tag ${{ secrets.DOCKER_USERNAME }}/godfarda:${{ github.sha }} \
+            --tag ${{ secrets.DOCKER_USERNAME }}/godfarda:latest \
+            .
+      
+      # Push the Docker image to the registry
+      - name: Push the Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/godfarda:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/godfarda:latest
