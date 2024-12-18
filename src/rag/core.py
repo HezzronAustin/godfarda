@@ -7,6 +7,12 @@ from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document as LangChainDocument
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 from src.storage.database import Document as DBDocument, User, get_session, Conversation, sessionmaker
 from src.prompts.templates import PromptTemplates
 import os
@@ -14,6 +20,16 @@ import logging
 import json
 from sqlalchemy import Engine
 from sqlalchemy import func
+
+# Define system prompts for contextual understanding
+CONTEXTUALIZE_Q_SYSTEM_PROMPT = """Given a chat history and the latest user question 
+which might reference context in the chat history, formulate a standalone question which 
+can be understood without the chat history. Do NOT answer the question, just reformulate 
+it if needed and otherwise return it as is."""
+
+ANSWER_SYSTEM_PROMPT = """You are a helpful AI assistant with access to relevant information 
+about the user and conversation history. Use the provided context and chat history to give 
+accurate, helpful, and contextually relevant responses."""
 
 @dataclass
 class Message:
@@ -29,41 +45,50 @@ class Document(BaseModel):
 
 class RAGSystem:
     def __init__(self, engine: Engine, persist_directory: str = "./chroma_db"):
-        """
-        Initialize the RAG system.
-        
-        Args:
-            engine: SQLAlchemy engine for database operations
-            persist_directory: Directory to persist vector store
-        """
+        """Initialize the RAG system with conversational capabilities."""
         self.engine = engine
         
         # Initialize LLM
         self.llm = Ollama(model="mistral")
         
-        # Initialize embeddings
+        # Initialize embeddings and vector store
         self.embeddings = HuggingFaceEmbeddings()
-        
-        # Initialize vector store
         self.vectorstore = Chroma(
             persist_directory=persist_directory,
             embedding_function=self.embeddings
         )
-        
-        logging.info("RAG system initialized successfully")
+        self.retriever = self.vectorstore.as_retriever()
         
         self.persist_directory = persist_directory
-        
-        # Initialize conversation history
-        self.history: Dict[str, List[Message]] = {}
-        
-        # Initialize prompt templates
         self.prompt_templates = PromptTemplates()
         
+        # Initialize text splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200
         )
+        
+        # Create the conversational chain
+        self.qa_prompt = ChatPromptTemplate.from_messages([
+            ("system", ANSWER_SYSTEM_PROMPT),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{question}"),
+            ("human", "Context: {context}")
+        ])
+        
+        # Create retrieval chain
+        self.chain = (
+            {
+                "context": lambda x: self.retriever.get_relevant_documents(x["question"]),
+                "question": lambda x: x["question"],
+                "chat_history": lambda x: x.get("chat_history", [])
+            }
+            | self.qa_prompt
+            | self.llm
+            | StrOutputParser()
+        )
+        
+        logging.info("RAG system initialized successfully")
         
     async def add_document(self, document: Document):
         # Convert to LangChain document format
@@ -238,11 +263,17 @@ class RAGSystem:
         session = Session()
         
         try:
-            # Query recent conversations for this user
+            # First get the user by telegram_id
+            user = session.query(User).filter(User.telegram_id == telegram_id).first()
+            
+            if not user:
+                logging.warning(f"No user found for telegram_id {telegram_id}")
+                return []
+            
+            # Query recent conversations for this user using the user's database ID
             conversations = (
                 session.query(Conversation)
-                .join(User)  # Join with User table
-                .filter(User.telegram_id == telegram_id)  # Filter by telegram_id
+                .filter(Conversation.user_id == user.id)  # Use the user's database ID
                 .order_by(Conversation.timestamp.desc())
                 .limit(limit)
                 .all()
@@ -257,6 +288,11 @@ class RAGSystem:
                     "timestamp": conv.timestamp,
                     "meta_data": conv.meta_data
                 })
+            
+            if not interactions:
+                logging.info(f"No interactions found for user {telegram_id}")
+            else:
+                logging.info(f"Found {len(interactions)} interactions for user {telegram_id}")
             
             return interactions
             
@@ -323,66 +359,51 @@ class RAGSystem:
         Args:
             query: User's question
             user_id: Telegram user ID
-            user_info: Optional dictionary with user information (username, first_name, last_name)
+            user_info: Optional dictionary with user information
         """
-        # Create a session that will be used throughout this method
         Session = sessionmaker(bind=self.engine)
         session = Session()
         
         try:
-            # Get or create user record using telegram_id
+            # Get or create user record
             user = self.get_or_create_user(
                 telegram_id=user_id,
                 username=user_info.get('username') if user_info else None,
                 first_name=user_info.get('first_name') if user_info else None,
                 last_name=user_info.get('last_name') if user_info else None
             )
-            
-            # Ensure user is attached to current session
             user = session.merge(user)
             
-            # Build comprehensive context and get recent interactions
-            context, recent_interactions = self._build_conversation_context(user, query)
+            # Get recent interactions and format them as messages
+            recent_interactions = self._get_recent_interactions(user_id)
+            chat_history = []
+            for interaction in reversed(recent_interactions):
+                chat_history.extend([
+                    HumanMessage(content=interaction['query']),
+                    AIMessage(content=interaction['response'])
+                ])
             
-            # Get relevant knowledge context
-            context_docs = self.get_context(query, user_id)
-            knowledge_context = self._format_context(context_docs)
-
-            # Format the complete prompt using templates
-            prompt = self.prompt_templates.format_prompt(
-                template_type='default',
-                context=f"""User Context:
-{json.dumps(context['user'], indent=2)}
-
-Conversation Context:
-{context['conversation']['history']}
-
-Knowledge Context:
-{knowledge_context}""",
-                conversation_history="",  # Already included in context
-                query=query
-            )
-
-            # Get response from LLM
-            response = await self.llm.agenerate([prompt])
-            response_text = response.generations[0][0].text
+            # Use the RAG chain with chat history
+            response = await self.chain.ainvoke({
+                "question": query,
+                "chat_history": chat_history
+            })
             
             # Store the interaction
             timestamp = datetime.utcnow().isoformat()
             data = {
-                "user_id": user.id,  # Database ID for foreign key
+                "user_id": user.id,
                 "query": query,
-                "response": response_text,
+                "response": response,
                 "timestamp": timestamp,
                 "platform": "telegram",
                 "conversation_meta": {
-                    "telegram_id": user.telegram_id,  # Store telegram_id in metadata
+                    "telegram_id": user.telegram_id,
                     "platform": "telegram",
                     "speaker_type": "ai_assistant",
                     "interaction_type": "direct_message",
-                    "context_used": bool(context_docs),
-                    "history_used": bool(recent_interactions),
-                    "conversation_context": context,
+                    "context_used": True,
+                    "history_used": bool(chat_history),
                     "user_info": {
                         "telegram_id": user.telegram_id,
                         "username": user.username,
@@ -392,7 +413,8 @@ Knowledge Context:
             }
             self._store_interaction_data(data)
             
-            return response_text
+            return response
+            
         finally:
             session.close()
 
@@ -408,13 +430,13 @@ Knowledge Context:
             
             # Prepare metadata
             meta_data = {
-                "user_id": data["user_id"],
                 "platform": data["platform"],
                 **data.get("conversation_meta", {})
             }
             
             # Create a new interaction record
             interaction = Conversation(
+                user_id=data["user_id"],  # This links the conversation to the user
                 query=data["query"],
                 response=data["response"],
                 timestamp=timestamp,
@@ -426,6 +448,8 @@ Knowledge Context:
             session.add(interaction)
             session.commit()
             
+            logging.info(f"Stored interaction for user {data['user_id']}")
+            
         except Exception as e:
             logging.error(f"Error storing interaction in database: {e}")
             session.rollback()
@@ -436,32 +460,9 @@ Knowledge Context:
 
     def _get_conversation_context(self, user_id: str, limit: int = 5) -> str:
         """Get the recent conversation history for a user."""
-        if user_id not in self.history:
-            return ""
-            
-        # Get the most recent messages
-        recent_messages = self.history[user_id][-limit:]
-        if not recent_messages:
-            return ""
-            
-        # Format the conversation history
-        context_parts = []
-        for msg in recent_messages:
-            role_prefix = "User" if msg.role == "user" else "Assistant"
-            context_parts.append(f"{role_prefix}: {msg.content}")
-            
-        return "\n".join(context_parts)
-
-    def add_message(self, user_id: str, role: str, content: str):
-        """Add a message to the conversation history."""
-        if user_id not in self.history:
-            self.history[user_id] = []
-            
-        # Trim history if it gets too long (keep last 20 messages)
-        if len(self.history[user_id]) >= 20:
-            self.history[user_id] = self.history[user_id][-19:]
-            
-        self.history[user_id].append(Message(role=role, content=content))
+        # Get recent interactions from database
+        interactions = self._get_recent_interactions(user_id, limit)
+        return self._format_conversation_history(interactions)
 
     def _identify_topic(self, query: str, recent_interactions: List[Dict[str, Any]]) -> str:
         """Identify the current conversation topic based on query and recent history."""
@@ -508,35 +509,55 @@ Knowledge Context:
     def _analyze_interaction_patterns(self, interactions: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze patterns in user interactions."""
         if not interactions:
-            return {"pattern": "First interaction"}
+            return {
+                "pattern": "First interaction",
+                "interaction_frequency": "First interaction",
+                "common_topics": [],
+                "conversation_style": "Not enough data"
+            }
             
-        patterns = {
-            "interaction_frequency": self._calculate_interaction_frequency(interactions),
-            "common_topics": self._identify_common_topics(interactions),
-            "conversation_style": self._identify_conversation_style(interactions)
-        }
-        
-        return patterns
+        try:
+            return {
+                "pattern": "Regular user" if len(interactions) > 5 else "New user",
+                "interaction_frequency": self._calculate_interaction_frequency(interactions),
+                "common_topics": self._identify_common_topics(interactions),
+                "conversation_style": self._identify_conversation_style(interactions)
+            }
+        except Exception as e:
+            logging.error(f"Error analyzing interaction patterns: {e}")
+            return {
+                "pattern": "Error analyzing patterns",
+                "interaction_frequency": "Unknown",
+                "common_topics": [],
+                "conversation_style": "Unknown"
+            }
 
     def _calculate_interaction_frequency(self, interactions: List[Dict[str, Any]]) -> str:
         """Calculate how frequently the user interacts with the system."""
-        if len(interactions) < 2:
-            return "New user"
+        if not interactions:
+            return "First interaction"
             
-        first_interaction = datetime.fromisoformat(interactions[-1]['timestamp'])
-        last_interaction = datetime.fromisoformat(interactions[0]['timestamp'])
-        duration = last_interaction - first_interaction
-        
-        if duration.days == 0:
-            return "Multiple times today"
-        avg_days = duration.days / len(interactions)
-        
-        if avg_days < 1:
-            return "Multiple times per day"
-        elif avg_days < 7:
-            return f"About {avg_days:.1f} times per week"
-        else:
-            return "Occasional user"
+        try:
+            first_interaction = interactions[-1]['timestamp']
+            last_interaction = interactions[0]['timestamp']
+            
+            # Calculate time difference
+            time_diff = last_interaction - first_interaction
+            total_interactions = len(interactions)
+            
+            # Calculate frequency
+            if time_diff.days == 0:
+                return "Multiple interactions today"
+            elif time_diff.days < 7:
+                avg_per_day = total_interactions / (time_diff.days + 1)
+                return f"Average {avg_per_day:.1f} interactions per day"
+            else:
+                avg_per_week = total_interactions / ((time_diff.days / 7) + 1)
+                return f"Average {avg_per_week:.1f} interactions per week"
+                
+        except Exception as e:
+            logging.error(f"Error calculating interaction frequency: {e}")
+            return "Unable to calculate interaction frequency"
 
     def _identify_common_topics(self, interactions: List[Dict[str, Any]]) -> List[str]:
         """Identify common topics in user's interactions."""

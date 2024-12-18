@@ -15,10 +15,11 @@ Current question: {query}
 Instructions:
 1. Use the provided user information and context to give a personalized response
 2. Reference the user by their name or username when appropriate
-3. Maintain conversation continuity by acknowledging previous interactions
-4. If the information is not in the context, acknowledge that and provide general guidance
-5. Keep responses clear and concise
-6. Maintain a helpful and professional tone
+3. Maintain conversation continuity by acknowledging previous interactions when relevant
+4. If referring to previous conversations, be specific about which part you're referencing
+5. If the information is not in the context, acknowledge that and provide general guidance
+6. Keep responses clear and concise while maintaining context
+7. Maintain a helpful and professional tone
 
 Response:"""
 
