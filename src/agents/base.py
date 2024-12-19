@@ -55,7 +55,7 @@ class BaseAgent(ABC):
         agent_def: Any,
         session: Session,
         description: str = None,
-        agent_type: AgentType = AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
+        agent_type: AgentType = AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
         tools: List[Any] = None
     ):
         self.name = agent_def.name
@@ -77,7 +77,6 @@ class BaseAgent(ABC):
                 llm=self.llm,
                 agent=agent_type,
                 verbose=True,
-                memory=self.memory,
                 max_iterations=2
             )
         

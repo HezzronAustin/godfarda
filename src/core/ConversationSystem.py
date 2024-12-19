@@ -59,9 +59,8 @@ class ConversationSystem:
                 agents = session.query(Agent).filter_by(is_active=True).all()
                 for agent in agents:
                     logger.debug(f"Loading agent: {agent.name}")
-                    # Create DynamicAgent instance with its own session
-                    agent_session = self.Session()
-                    dynamic_agent = DynamicAgent(agent, agent_session)
+                    with self.Session() as agent_session:
+                        dynamic_agent = DynamicAgent(agent, agent_session)
                     
                     async def _process_message(message: str, agent=dynamic_agent) -> str:
                         """Wrapper to handle async process_message"""
@@ -77,7 +76,8 @@ class ConversationSystem:
                         name=agent.name,
                         func=_process_message,
                         description=agent.description,
-                        coroutine=_process_message
+                        coroutine=_process_message,
+                        return_direct=True
                     )
                     tools.append(agent_tool)
             finally:
@@ -97,7 +97,8 @@ class ConversationSystem:
                 agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
                 verbose=True,
                 memory=self.memory,
-                max_iterations=5
+                max_iterations=10,
+                handle_parsing_errors=True
             )
 
             elapsed_time = time.time() - start_time

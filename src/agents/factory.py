@@ -43,8 +43,7 @@ class DynamicAgent(BaseAgent):
             # Create the prompt template
             instance.prompt = ChatPromptTemplate.from_messages([
                 ("system", agent_def.system_prompt),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}")
+                ("assistant", "{input}")
             ])
             
             return instance
@@ -62,7 +61,7 @@ class DynamicAgent(BaseAgent):
         if isinstance(prompt_value, list):
             formatted_messages = [
                 {"role": "system", "content": msg.content} if isinstance(msg, SystemMessage) else
-                {"role": "user", "content": msg.content} if isinstance(msg, HumanMessage) else
+                {"role": "assistant", "content": msg.content} if isinstance(msg, AIMessage) else
                 msg
                 for msg in prompt_value
             ]
@@ -105,13 +104,13 @@ class DynamicAgent(BaseAgent):
             
             # Format the prompt
             prompt_value = self.prompt.format_messages(
-                chat_history=[],  # Chat history handled by parent
+                chat_history=[],
                 input=message
             )
             logger.debug(f"Formatted prompt for agent {self.name}")
             
             # Get response from LLM
-            response_text = await self.get_llm_response(prompt_value)
+            response_text = await self.get_llm_response([message])
             
             # Parse response if JSON format is required
             requires_json = (
@@ -125,6 +124,8 @@ class DynamicAgent(BaseAgent):
                 except json.JSONDecodeError:
                     logger.warning(f"Failed to parse JSON response for agent {self.name}")
                     result = {"response": response_text}
+                except Exception as e:
+                    logger.info(f"Failed to parse JSON response for agent {e.message}", exc_info=True)
             else:
                 result = {"response": response_text}
             
