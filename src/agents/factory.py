@@ -7,14 +7,13 @@ import json
 import logging
 
 from src.agents.base import BaseAgent
-from src.agents.models import Agent, Tool, Function, AgentExecution
+from src.agents.models import Agent, Tool, AgentExecution
 
 logger = logging.getLogger('agents.factory')
 
 class DynamicAgent(BaseAgent):
     """Dynamically created agent from database definition"""
-    
-    def __init__(self, 
+    def __new__(self,
                  agent_def: Agent,
                  llm: Any,
                  session: Session,
@@ -28,8 +27,7 @@ class DynamicAgent(BaseAgent):
         
         try:
             self.tools = self._load_tools()
-            self.functions = self._load_functions()
-            logger.info(f"Loaded {len(self.tools)} tools and {len(self.functions)} functions for agent {self.name}")
+            logger.info(f"Loaded {len(self.tools)} tools for agent {self.name}")
             
             # Create the prompt template
             self.prompt = ChatPromptTemplate.from_messages([
@@ -147,7 +145,3 @@ class DynamicAgent(BaseAgent):
     def _load_tools(self) -> Dict[str, Tool]:
         """Load tools for this agent"""
         return {tool.name: tool for tool in self.agent_def.tools}
-        
-    def _load_functions(self) -> Dict[str, Function]:
-        """Load functions for this agent"""
-        return {func.name: func for func in self.agent_def.functions}

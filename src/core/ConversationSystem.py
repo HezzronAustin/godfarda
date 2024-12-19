@@ -1,38 +1,38 @@
-import os
-from datetime import datetime
+from langchain.agents import initialize_agent, AgentType
+from langchain.memory import ConversationBufferMemory
+from langchain_community.chat_models.ollama import ChatOllama
+from langchain.tools import Tool
+
+from src.agents.factory import DynamicAgent
+from src.agents.registry import AgentRegistry
+from src.storage.database import session_scope
+from src.agents.models import Agent, User, Conversation, Message
+from langchain_core.messages import SystemMessage
+from langchain.schema import AIMessage, HumanMessage
 from typing import List
 import logging
 import time
+import os
 from dataclasses import dataclass, field
-from langchain_core.messages import SystemMessage
-from langchain_community.chat_models.ollama import ChatOllama
-from langchain.schema import AIMessage, HumanMessage
-from langchain.tools import Tool
-from langchain.agents import initialize_agent, AgentType
-from langchain.memory import ConversationBufferMemory
-from sqlalchemy import Engine
-from src.agents.registry import AgentRegistry
-from src.agents.function_store import FunctionStore
-from src.storage.database import User, Conversation, Message, session_scope
 
-# Configure logging
-logger = logging.getLogger('ai.conversation_system')
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class MessageData:
-    role: str  # 'user' or 'assistant'
+    role: str
     content: str
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: str = field(default=None)
 
 
 class ConversationSystem:
-    def __init__(self, engine: Engine = None):
-        """Initialize the conversation system."""
-        logger.info("Initializing Conversation system")
-        start_time = time.time()
-
+    def __init__(self, engine):
+        """Initialize the conversation system with necessary components."""
         try:
+            start_time = time.time()
+            logger.info("Initializing Conversation system")
+
+            # Store engine for session management
             self.engine = engine
 
             # Initialize Ollama LLM
@@ -51,28 +51,25 @@ class ConversationSystem:
 
             # Initialize agent registry and function store
             self.agent_registry = AgentRegistry(engine)
-            self.function_store = FunctionStore()
-
-            # Define tools for the LangChain agent
-            tools = [
-                Tool(
-                    name="search_tool",
-                    func=self.custom_search_function,
-                    description="Searches for information using an external API."
-                ),
-                Tool(
-                    name="database_query",
-                    func=self.query_database,
-                    description="Query the internal database for specific information."
-                )
-            ]
+            tools = []
+            with session_scope(self.engine) as session:
+                agents = session.query(Agent).filter_by(is_active=True).all()
+                for agent in agents:
+                    logger.debug(f"Loading agent: {agent.name}")
+                    # Define tools for the LangChain agent
+                    agent_tool = Tool(
+                        name=agent.name,
+                        func=DynamicAgent(agent, self.llm, session).process_message,
+                        description=agent.description
+                    )
+                    tools.append(agent_tool)
 
             # Initialize LangChain memory and agent
             self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
             self.agent = initialize_agent(
                 tools=tools,
                 llm=self.llm,
-                agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+                agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
                 verbose=True,
                 memory=self.memory
             )

@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional, ClassVar
 from sqlalchemy.orm import Session
 from telethon import events, Button
-from src.agents.models import Agent, Tool, Function
+from src.agents.models import Agent, Tool
 from src.telegram.base import BaseTelegramHandler
 import logging
 import json
@@ -235,11 +235,5 @@ class AgentManager(BaseTelegramHandler):
             response += "\nTools:\n"
             for tool in agent.tools:
                 response += f"- {tool.name}\n"
-                
-        # Add function information if available
-        if agent.functions:
-            response += "\nFunctions:\n"
-            for func in agent.functions:
-                response += f"- {func.name}\n"
                 
         await event.respond(response)
