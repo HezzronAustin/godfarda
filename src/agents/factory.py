@@ -1,4 +1,6 @@
 from typing import Dict, List, Any, Optional
+
+from langchain_core.messages import SystemMessage
 from sqlalchemy.orm import Session
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import BaseMessage, HumanMessage, AIMessage
@@ -50,26 +52,36 @@ class DynamicAgent(BaseAgent):
         except Exception as e:
             logger.error(f"Error initializing DynamicAgent {agent_def.name}: {str(e)}")
             raise
-    
+
     async def get_llm_response(self, prompt_value) -> str:
         """Get response from LLM with streaming support"""
         logger.debug(f"Sending prompt to LLM for agent {self.name}")
         response_text = ""
-        
+
+        # Convert messages to dictionaries
+        if isinstance(prompt_value, list):
+            formatted_messages = [
+                {"role": "system", "content": msg.content} if isinstance(msg, SystemMessage) else
+                {"role": "user", "content": msg.content} if isinstance(msg, HumanMessage) else
+                msg
+                for msg in prompt_value
+            ]
+        else:
+            raise ValueError("Expected a list of messages as prompt_value")
+
         try:
             if self.llm_config.get('streaming', False):
-                async for chunk in self.llm.astream([prompt_value]):
+                async for chunk in self.llm.astream(formatted_messages):
                     response_text += chunk.content
             else:
-                # Non-streaming mode
-                response = await self.llm.agenerate([prompt_value])
+                response = await self.llm.agenerate(formatted_messages)
                 response_text = response.generations[0][0].text
-            
+
             return response_text
         except Exception as e:
             logger.error(f"Error getting LLM response: {str(e)}", exc_info=True)
             raise
-    
+
     async def process_message(self, message: str) -> Dict[str, Any]:
         """Process a message and return a response"""
         logger.info(f"Processing message with agent {self.name}")

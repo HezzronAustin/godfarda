@@ -78,7 +78,7 @@ class BaseAgent(ABC):
                 agent=agent_type,
                 verbose=True,
                 memory=self.memory,
-                max_iterations=5
+                max_iterations=2
             )
         
     def _create_llm(self):

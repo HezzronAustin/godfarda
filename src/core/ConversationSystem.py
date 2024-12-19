@@ -45,8 +45,7 @@ class ConversationSystem:
                 repeat_penalty=1.1,
                 streaming=False,
                 context_window=8192,
-                timeout=120,
-                base_url=os.getenv('OLLAMA_BASE_URL')
+                timeout=120
             )
 
             logger.debug("LLM initialized")
