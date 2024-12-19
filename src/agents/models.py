@@ -19,7 +19,60 @@ class Agent(Base, TimestampMixin):
     response_time = Column(String(50))
     last_executed_by = Column(String(100))
     error_count = Column(Integer, default=0)
-    config_data = Column(JSON)
+    config_data = Column(JSON, comment="""
+        Configuration structure:
+        {
+            'llm': {
+                'model': str,              # Model name
+                'temperature': float,       # 0-1
+                'top_p': float,            # 0-1
+                'top_k': int,              # Top-k sampling
+                'repeat_penalty': float,    # Repetition penalty
+                'context_window': int,      # Max context length
+                'timeout': int,            # Seconds
+                'streaming': bool,         # Enable streaming
+                'max_tokens': int,         # Max response tokens
+                'stop_sequences': list,    # Stop sequences
+                'seed': int               # Random seed
+            },
+            'output': {
+                'format': str,            # 'json' or 'text'
+                'requires_structured_output': bool,
+                'max_length': int,
+                'include_metadata': bool
+            },
+            'memory': {
+                'type': str,             # Memory type
+                'max_history': int,      # Max history size
+                'include_system': bool   # Include system msgs
+            },
+            'tools': {
+                'max_iterations': int,   # Max tool calls
+                'timeout_per_tool': int, # Tool timeout
+                'allow_recursive': bool, # Allow recursion
+                'execution_mode': str    # 'sync' or 'async'
+            },
+            'behavior': {
+                'role': str,            # Agent role
+                'style': str,           # Communication style
+                'language': str,        # Response language
+                'max_depth': int,       # Max recursion
+                'error_handling': str   # Error mode
+            },
+            'execution': {
+                'retry_attempts': int,  # Retry count
+                'retry_delay': int,     # Retry delay
+                'fallback_response': str, # Default response
+                'timeout': int          # Overall timeout
+            },
+            'monitoring': {
+                'log_level': str,      # Log level
+                'track_metrics': bool,  # Enable metrics
+                'track_tokens': bool,   # Track tokens
+                'track_latency': bool   # Track timing
+            }
+        }
+    """)
     is_active = Column(Boolean, default=True)
     max_chain_depth = Column(Integer, default=3)
     chain_strategy = Column(String(50), default='sequential')
@@ -41,9 +94,16 @@ class Tool(Base, TimestampMixin):
     description = Column(Text)
     config_data = Column(JSON)
     is_active = Column(Boolean, default=True)
+    tool_type = Column(String(50))  # e.g., 'langchain', 'custom', etc.
+    implementation = Column(Text)  # Python code or reference to implementation
+    implementation_path = Column(String(500))  # Path to implementation file
+    parameters = Column(JSON)  # Tool parameters schema
     
     # Relationships
     agent = relationship("Agent", back_populates="tools")
+
+    def __repr__(self):
+        return f"<Tool(name='{self.name}', agent='{self.agent.name if self.agent else None}')>"
 
 class AgentExecution(Base, TimestampMixin):
     __tablename__ = 'agent_executions'
@@ -58,10 +118,15 @@ class AgentExecution(Base, TimestampMixin):
     error_message = Column(Text)
     is_vectorized = Column(Boolean, default=False)  # New flag for tracking vectorization status
     vectorized_at = Column(DateTime)  # New column to track when it was vectorized
+    execution_time = Column(Float)  # Time taken to execute in seconds
+    memory_usage = Column(JSON)  # Memory usage stats during execution
     
     # Relationships
     agent = relationship("Agent", back_populates="executions")
     conversation = relationship("Conversation", back_populates="agent_executions")
+
+    def __repr__(self):
+        return f"<AgentExecution(agent='{self.agent.name if self.agent else None}', status='{self.status}')>"
 
 class User(Base, TimestampMixin):
     __tablename__ = 'users'
@@ -95,17 +160,34 @@ class Conversation(Base, TimestampMixin):
     def __repr__(self):
         return f"<Conversation(id={self.id}, user_id={self.user_id}, active={self.is_active})>"
 
+class Role(Base):
+    __tablename__ = 'roles'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)  # 'user', 'assistant', 'system'
+    description = Column(Text)
+    is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    messages = relationship("Message", back_populates="role")
+
+    def __repr__(self):
+        return f"<Role(name='{self.name}')>"
+
 class Message(Base, TimestampMixin):
     __tablename__ = 'messages'
     
     id = Column(Integer, primary_key=True)
     conversation_id = Column(Integer, ForeignKey('conversations.id'))
-    role = Column(String(50), nullable=False)  # 'user' or 'assistant'
-    content = Column(Text, nullable=False)
-    message_metadata = Column(JSON)  # Renamed from metadata to avoid SQLAlchemy conflict
+    role_id = Column(Integer, ForeignKey('roles.id'))
+    content = Column(Text)
+    message_metadata = Column(JSON)  # Renamed from metadata
+    is_vectorized = Column(Boolean, default=False)
+    vectorized_at = Column(DateTime)
     
     # Relationships
     conversation = relationship("Conversation", back_populates="messages")
+    role = relationship("Role", back_populates="messages")
 
     def __repr__(self):
-        return f"<Message(conversation_id={self.conversation_id}, role='{self.role}')>"
+        return f"<Message(conversation_id={self.conversation_id}, role='{self.role.name if self.role else None}')>"

@@ -62,7 +62,7 @@ async def handle_message(event):
                 session.commit()
 
             # Get response from conversation system
-            response = await conversation_system.converse(message, user_id=user_id)
+            response = await conversation_system.converse(message=message, telegram_id=user_id)
 
             # Send response
             await event.respond(response)
